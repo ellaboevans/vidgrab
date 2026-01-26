@@ -32,11 +32,19 @@ A fast, user-friendly desktop application to download YouTube videos and playlis
 
 ## Installation
 
-### Requirements
-- Python 3.8+
-- pip or your favorite package manager
+### Option 1: Standalone Executable (Easiest)
 
-### From Source
+Download the pre-built executable for your OS:
+
+- **macOS**: Download `YouTube Downloader.app` (no installation needed)
+- **Windows**: Download `YouTubeDownloader.exe` (no installation needed)
+- **Linux**: Download `YouTubeDownloader` (no installation needed)
+
+Just download and run!
+
+### Option 2: From Source
+
+If you prefer to run from source or want to modify the code:
 
 1. Clone the repository:
 ```bash
@@ -59,6 +67,10 @@ pip install -r requirements.txt
 ```bash
 python -m main
 ```
+
+### Building Your Own Executable
+
+Want to build an executable yourself? See [BUILDING.md](BUILDING.md) for detailed instructions on building for macOS, Windows, and Linux.
 
 ## Usage
 
