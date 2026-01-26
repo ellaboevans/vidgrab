@@ -5,8 +5,10 @@ class QueueManager:
         self.queue: list[QueueItem] = []
         self.current_index = -1
 
-    def add(self, url: str):
-        self.queue.append(QueueItem(url=url))
+    def add(self, url: str, title: str):
+        item = QueueItem(url=url, title=title)
+        self.queue.append(item)
+        return item
 
     def has_next(self)-> bool:
         return self.current_index + 1 < len(self.queue)

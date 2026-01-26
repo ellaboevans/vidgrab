@@ -24,6 +24,7 @@ class DownloadWorker(QThread):
     progress = pyqtSignal(int)
     status = pyqtSignal(str)
     finished_one = pyqtSignal(bool)
+    started_one = pyqtSignal()  # signal when download starts
 
     def __init__(self, queue_item, output_dir):
         super().__init__()
@@ -44,12 +45,36 @@ class DownloadWorker(QThread):
 
         try:
             self.item.status = "Downloading"
+            self.started_one.emit()
             engine.download(self.item.url)
             self.item.status = "Completed"
             self.finished_one.emit(True)
         except Exception:
             self.item.status = "Failed"
             self.finished_one.emit(False)
+
+
+class MetadataWorker(QThread):
+    title_fetched = pyqtSignal(str)
+
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+
+    def run(self):
+        try:
+            import yt_dlp
+            ydl_opts = {
+                "quiet": True,
+                "skip_download": True,
+                "extract_flat": True,
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(self.url, download=False)
+                title = info.get("title", self.url)
+                self.title_fetched.emit(title)
+        except Exception:
+            self.title_fetched.emit(self.url)
 
 
 # ---------------- Main GUI ----------------
@@ -62,6 +87,10 @@ class YouTubeDownloader(QWidget):
         layout = QVBoxLayout()
 
         self.queue = QueueManager()
+        self.metadata_workers = []  # store active metadata threads
+
+        self.total_items = 0
+        self.completed_items = 0
 
         # URL input
         layout.addWidget(QLabel("YouTube URL"))
@@ -77,12 +106,11 @@ class YouTubeDownloader(QWidget):
         self.folder_btn.clicked.connect(self.choose_folder)
         layout.addWidget(self.folder_btn)
 
+        # Buttons
         self.add_btn = QPushButton("Add to Queue")
         self.start_btn = QPushButton("Start Downloads")
-
         self.add_btn.clicked.connect(self.add_to_queue)
         self.start_btn.clicked.connect(self.start_queue)
-
         layout.addWidget(self.add_btn)
         layout.addWidget(self.start_btn)
 
@@ -91,7 +119,7 @@ class YouTubeDownloader(QWidget):
         self.progress_bar.setValue(0)
         layout.addWidget(self.progress_bar)
 
-        # Status
+        # Status label
         self.status_label = QLabel("Idle")
         layout.addWidget(self.status_label)
 
@@ -102,78 +130,101 @@ class YouTubeDownloader(QWidget):
         self.setLayout(layout)
         self.output_dir = ""
 
+    # ---------------- Folder selection ----------------
     def choose_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select download folder")
         if folder:
             self.output_dir = folder
             self.folder_label.setText(f"Download folder: {folder}")
 
-    def start_download(self):
-        url = self.url_input.text().strip()
-        if not url or not self.output_dir:
-            QMessageBox.warning(self, "Missing info", "Please enter URL and select a folder")
-            return
-
-        self.download_btn.setEnabled(False)
-        self.progress_bar.setValue(0)
-        self.list_widget.clear()
-
-        self.worker = DownloadWorker(url, self.output_dir)
-        self.worker.progress.connect(self.progress_bar.setValue)
-        self.worker.status.connect(self.status_label.setText)
-        self.worker.video_done.connect(self.add_completed_video)
-        self.worker.finished.connect(self.download_finished)
-        self.worker.start()
-
-    def add_completed_video(self, filename):
-        item = QListWidgetItem(f"Completed: {filename}")
-        self.list_widget.addItem(item)
-
-    def download_finished(self):
-        self.download_btn.setEnabled(True)
-
+    # ---------------- Queue management ----------------
     def add_to_queue(self):
         url = self.url_input.text().strip()
         if not url:
             return
 
-        self.queue.add(url)
-        self.list_widget.addItem(f"Waiting: {url}")
+        # Add placeholder QueueItem with temporary title
+        self.queue.add(url, title="Fetching title...")
+        list_item = QListWidgetItem(f"Waiting: Fetching title...")
+        self.list_widget.addItem(list_item)
+        row = self.list_widget.count() - 1
+
+        # Start metadata worker
+        worker = MetadataWorker(url)
+        worker.title_fetched.connect(
+            lambda title, r=row, w=worker: self.on_title_ready_and_cleanup(r, title, w)
+        )
+        self.metadata_workers.append(worker)
+        worker.start()
+
         self.url_input.clear()
 
+    def on_title_ready_and_cleanup(self, row, title, worker):
+        # Update the QueueItem and list widget
+        self.queue.queue[row].title = title
+        self.list_widget.item(row).setText(f"Waiting: {title}")
+
+        # Clean up thread
+        if worker in self.metadata_workers:
+            self.metadata_workers.remove(worker)
+        worker.quit()
+        worker.wait()
+
+    # ---------------- Start downloading ----------------
     def start_queue(self):
-        if not self.queue.has_next():
+        if not self.output_dir:
+            QMessageBox.warning(self, "Missing folder", "Please choose a download folder first")
             return
+
+        if not self.queue.has_next():
+            QMessageBox.information(self, "Queue empty", "Please add at least one URL to the queue")
+            return
+
+        self.total_items = len(self.queue.queue)
+        self.completed_items = 0
+        self.start_btn.setEnabled(False)
         self.start_next_download()
 
     def start_next_download(self):
         item = self.queue.next_item()
         if not item:
             self.status_label.setText("All downloads completed")
+            self.progress_bar.setValue(100)
+            self.start_btn.setEnabled(True)
             return
 
-        row = self.queue.current_index
-
-        # 🔥 UPDATE LIST ITEM WHEN DOWNLOAD STARTS
-        self.list_widget.item(row).setText(f"In progress: {item.url}")
-
-        self.status_label.setText("Downloading...")
-        self.progress_bar.setValue(0)
+        index = self.queue.current_index + 1
+        self.status_label.setText(f"Downloading {index} of {self.total_items}")
+        self.progress_bar.setValue(int((self.completed_items / self.total_items) * 100))
 
         self.worker = DownloadWorker(item, self.output_dir)
-        self.worker.progress.connect(self.progress_bar.setValue)
+        self.worker.progress.connect(self.update_overall_progress)
+        self.worker.started_one.connect(
+            lambda: self.list_widget.item(self.queue.current_index)
+            .setText(f"In Progress: {item.title}")
+        )
         self.worker.finished_one.connect(self.on_item_finished)
         self.worker.start()
 
     def on_item_finished(self, success):
         row = self.queue.current_index
         status = "Completed" if success else "Failed"
-        self.list_widget.item(row).setText(f"{status}: {self.queue.queue[row].url}")
+        self.list_widget.item(row).setText(f"{status}: {self.queue.queue[row].title}")
+
+        self.completed_items += 1
 
         if self.queue.has_next():
             self.start_next_download()
         else:
             self.status_label.setText("All downloads completed")
+            self.progress_bar.setValue(100)
+            self.start_btn.setEnabled(True)
+
+    # ---------------- Progress calculation ----------------
+    def update_overall_progress(self, video_percent):
+        overall = ((self.completed_items + (video_percent / 100)) / self.total_items) * 100
+        self.progress_bar.setValue(int(overall))
+
 
 # ---------------- App Entry ----------------
 def main():
