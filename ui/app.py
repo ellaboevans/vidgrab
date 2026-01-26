@@ -16,6 +16,7 @@ from core.logger import log_error, log_info, AppLogger
 from core.validators import URLValidator
 from core.queue_persistence import QueuePersistence
 from ui.settings_dialog import SettingsDialog
+from ui.splash_screen import show_splash, hide_splash
 
 
 # ---------------- Worker Thread ----------------
@@ -110,7 +111,7 @@ class MetadataWorker(QThread):
 class YouTubeDownloader(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("YouTube Downloader")
+        self.setWindowTitle("VidGrab")
         self.setMinimumSize(600, 480)
 
         layout = QVBoxLayout()
@@ -149,17 +150,20 @@ class YouTubeDownloader(QWidget):
         self.add_btn = QPushButton("Add to Queue")
         self.start_btn = QPushButton("Start Downloads")
         self.stop_btn = QPushButton("Stop")
+        self.clear_queue_btn = QPushButton("Clear Queue")
         self.logs_btn = QPushButton("View Logs")
         self.settings_btn = QPushButton("Settings")
         self.add_btn.clicked.connect(self.add_to_queue)
         self.start_btn.clicked.connect(self.start_queue)
         self.stop_btn.clicked.connect(self.stop_downloads)
+        self.clear_queue_btn.clicked.connect(self.clear_queue)
         self.logs_btn.clicked.connect(self.view_logs)
         self.settings_btn.clicked.connect(self.open_settings)
         self.stop_btn.setEnabled(False)
         btn_layout.addWidget(self.add_btn)
         btn_layout.addWidget(self.start_btn)
         btn_layout.addWidget(self.stop_btn)
+        btn_layout.addWidget(self.clear_queue_btn)
         btn_layout.addStretch()
         btn_layout.addWidget(self.logs_btn)
         btn_layout.addWidget(self.settings_btn)
@@ -227,6 +231,28 @@ class YouTubeDownloader(QWidget):
         log_info("Application closed")
         
         event.accept()
+
+    # ---------------- Queue Management ----------------
+    def clear_queue(self):
+        """Clear all items from queue"""
+        if not self.queue.queue:
+            QMessageBox.information(self, "Queue Empty", "The queue is already empty")
+            return
+        
+        reply = QMessageBox.question(
+            self,
+            "Clear Queue",
+            f"Are you sure you want to clear all {len(self.queue.queue)} items from the queue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            self.queue.queue.clear()
+            self.queue.current_index = -1
+            self.list_widget.clear()
+            self.queue_persistence.clear_saved_queue()
+            self.status_label.setText("Queue cleared")
+            log_info("Queue cleared by user")
 
     # ---------------- Settings & Logs ----------------
     def open_settings(self):
@@ -449,6 +475,18 @@ class YouTubeDownloader(QWidget):
 # ---------------- App Entry ----------------
 def main():
     app = QApplication(sys.argv)
-    window = YouTubeDownloader()
-    window.show()
+    
+    # Show splash screen while loading
+    splash = show_splash(app)
+    log_info("Splash screen shown")
+    
+    try:
+        # Create and show main window
+        window = YouTubeDownloader()
+        window.show()
+        log_info("Main window loaded")
+    finally:
+        # Hide splash screen when ready
+        hide_splash(splash)
+    
     sys.exit(app.exec())

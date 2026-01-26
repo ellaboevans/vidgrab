@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader - Download Videos & Playlists</title>
+    <title>VidGrab - Download Videos & Playlists Fast</title>
     <style>
         * {
             margin: 0;
@@ -223,9 +223,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>📥 YouTube Downloader</h1>
+        <h1>📥 VidGrab</h1>
         <p class="subtitle">
-            Fast, simple, and free. Download YouTube videos and playlists with one click.
+            Fast, simple, and free. Download videos and playlists from any platform with one click.
         </p>
 
         <!-- OS Detection -->
@@ -281,36 +281,36 @@
                 <h3>Other versions:</h3>
                 <ul class="version-list">
                     <li>
-                        <a href="https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader.dmg" class="version-link">
+                        <a href="https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab.dmg" class="version-link">
                             🍎 macOS (Intel & Apple Silicon)
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader.exe" class="version-link">
+                        <a href="https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab.exe" class="version-link">
                             🪟 Windows 10/11
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader" class="version-link">
-                            🐧 Linux (AppImage)
+                        <a href="https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab" class="version-link">
+                            🐧 Linux
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/yourusername/youtube-downloader/releases" class="version-link">
+                        <a href="https://github.com/yourusername/vidgrab/releases" class="version-link">
                             📋 All Releases
                         </a>
                     </li>
                 </ul>
             </div>
 
-            <a href="https://github.com/yourusername/youtube-downloader" class="github-link">
+            <a href="https://github.com/yourusername/vidgrab" class="github-link">
                 View on GitHub →
             </a>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p>Version 1.0.0 | Built with PyQt6 & yt-dlp | <a href="https://github.com/yourusername/youtube-downloader#license" style="color: #667eea;">MIT License</a></p>
+            <p>Version 1.0.0 | Built with PyQt6 & yt-dlp | <a href="https://github.com/yourusername/vidgrab#license" style="color: #667eea;">MIT License</a></p>
         </div>
     </div>
 
@@ -323,23 +323,23 @@
             if (ua.indexOf('Win') > -1) {
                 osName = 'Windows';
                 icon = '🪟';
-                downloadUrl = 'https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader.exe';
-                fileName = 'YouTubeDownloader.exe';
+                downloadUrl = 'https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab.exe';
+                fileName = 'VidGrab.exe';
             } else if (ua.indexOf('Mac') > -1) {
                 osName = 'macOS';
                 icon = '🍎';
-                downloadUrl = 'https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader.dmg';
-                fileName = 'YouTubeDownloader.dmg';
+                downloadUrl = 'https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab.dmg';
+                fileName = 'VidGrab.dmg';
             } else if (ua.indexOf('Linux') > -1) {
                 osName = 'Linux';
                 icon = '🐧';
-                downloadUrl = 'https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader';
-                fileName = 'YouTubeDownloader';
+                downloadUrl = 'https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab';
+                fileName = 'VidGrab';
             } else {
                 osName = 'Unknown';
                 icon = '📥';
-                downloadUrl = 'https://github.com/yourusername/youtube-downloader/releases';
-                fileName = 'YouTube Downloader';
+                downloadUrl = 'https://github.com/yourusername/vidgrab/releases';
+                fileName = 'VidGrab';
             }
 
             // Update UI

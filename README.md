@@ -34,13 +34,15 @@ A fast, user-friendly desktop application to download YouTube videos and playlis
 
 ### Option 1: Standalone Executable (Easiest)
 
-Download the pre-built executable for your OS:
+Visit the **[Official Download Page](https://yourusername.github.io/youtube-downloader/)** to download the latest version for your operating system.
 
-- **macOS**: Download `YouTube Downloader.app` (no installation needed)
-- **Windows**: Download `YouTubeDownloader.exe` (no installation needed)
-- **Linux**: Download `YouTubeDownloader` (no installation needed)
+The page automatically detects your OS and offers the right download button. Or manually download:
 
-Just download and run!
+- **macOS**: `YouTubeDownloader.dmg` (drag to Applications)
+- **Windows**: `YouTubeDownloader.exe` (double-click to run)
+- **Linux**: `YouTubeDownloader` (make executable and run)
+
+No installation needed, just download and run!
 
 ### Option 2: From Source
 
