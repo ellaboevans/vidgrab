@@ -35,7 +35,7 @@ echo. Building executable (this may take a minute)...
 pyinstaller ^
     --onefile ^
     --windowed ^
-    --name YouTubeDownloader ^
+    --name VidGrab ^
     --add-data "core;core" ^
     --add-data "ui;ui" ^
     --hidden-import=yt_dlp ^
@@ -52,10 +52,10 @@ if %errorlevel% neq 0 (
 echo.
 echo. Build successful!
 echo.
-echo. Output: dist\YouTubeDownloader.exe
+echo. Output: dist\VidGrab.exe
 echo.
 echo. To run:
-echo.   dist\YouTubeDownloader.exe
+echo.   dist\VidGrab.exe
 echo.
 echo. To distribute:
 echo.   * Create installer with NSIS, MSI, or Inno Setup

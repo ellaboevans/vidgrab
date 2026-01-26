@@ -48,7 +48,7 @@ echo "⏳ Building executable (this may take a minute)..."
 pyinstaller \
     --onefile \
     --windowed \
-    --name YouTubeDownloader \
+    --name VidGrab \
     --add-data "core:core" \
     --add-data "ui:ui" \
     --hidden-import=yt_dlp \
@@ -68,20 +68,20 @@ echo ""
 
 # Show output location
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "📦 Output: dist/YouTubeDownloader.app"
+    echo "📦 Output: dist/VidGrab.app"
     echo ""
     echo "To run:"
-    echo "  open dist/YouTubeDownloader.app"
+    echo "  open dist/VidGrab.app"
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    echo "📦 Output: dist/YouTubeDownloader.exe"
+    echo "📦 Output: dist/VidGrab.exe"
     echo ""
     echo "To run:"
-    echo "  dist/YouTubeDownloader.exe"
+    echo "  dist/VidGrab.exe"
 else
-    echo "📦 Output: dist/YouTubeDownloader"
+    echo "📦 Output: dist/VidGrab"
     echo ""
     echo "To run:"
-    echo "  ./dist/YouTubeDownloader"
+    echo "  ./dist/VidGrab"
 fi
 
 echo ""
