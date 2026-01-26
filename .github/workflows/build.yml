@@ -1,0 +1,114 @@
+name: Build Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: macOS
+            artifact: VidGrab.app
+            path: dist/VidGrab.app
+          - os: windows-latest
+            name: Windows
+            artifact: VidGrab.exe
+            path: dist/VidGrab.exe
+          - os: ubuntu-latest
+            name: Linux
+            artifact: VidGrab
+            path: dist/VidGrab
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build executable (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          pip install pyinstaller
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name VidGrab \
+            --add-data "core:core" \
+            --add-data "ui:ui" \
+            --hidden-import=yt_dlp \
+            --hidden-import=PyQt6.QtCore \
+            --hidden-import=PyQt6.QtGui \
+            --hidden-import=PyQt6.QtWidgets \
+            main.py
+
+      - name: Build executable (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          pip install pyinstaller
+          pyinstaller ^
+            --onefile ^
+            --windowed ^
+            --name VidGrab ^
+            --add-data "core;core" ^
+            --add-data "ui;ui" ^
+            --hidden-import=yt_dlp ^
+            --hidden-import=PyQt6.QtCore ^
+            --hidden-import=PyQt6.QtGui ^
+            --hidden-import=PyQt6.QtWidgets ^
+            main.py
+
+      - name: Build executable (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pip install pyinstaller
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name VidGrab \
+            --add-data "core:core" \
+            --add-data "ui:ui" \
+            --hidden-import=yt_dlp \
+            --hidden-import=PyQt6.QtCore \
+            --hidden-import=PyQt6.QtGui \
+            --hidden-import=PyQt6.QtWidgets \
+            main.py
+
+      - name: Create DMG (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          hdiutil create \
+            -volname "VidGrab" \
+            -srcfolder dist/VidGrab.app \
+            -ov -format UDZO \
+            dist/VidGrab.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.name }}-build
+          path: ${{ matrix.path }}
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/VidGrab.app
+            dist/VidGrab.dmg
+            dist/VidGrab.exe
+            dist/VidGrab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
