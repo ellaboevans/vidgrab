@@ -92,7 +92,10 @@ jobs:
       - name: Sign app (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          # Ad-hoc sign the .app bundle recursively
+          # 1. Force executable permissions on the internal binary
+          chmod +x dist/VidGrab.app/Contents/MacOS/VidGrab
+          
+          # 2. Ad-hoc sign the .app bundle recursively
           codesign --force --deep --sign - dist/VidGrab.app
 
       - name: Create DMG (macOS)
