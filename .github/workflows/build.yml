@@ -90,6 +90,11 @@ jobs:
             --hidden-import=PyQt6.QtWidgets \
             main.py
 
+      - name: Sign app (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          codesign --force --deep --sign - dist/VidGrab.app
+
       - name: Create DMG (macOS)
         if: matrix.os == 'macos-latest'
         run: |
