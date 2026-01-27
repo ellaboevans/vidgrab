@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -106,9 +110,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/VidGrab.app
-            dist/VidGrab.dmg
-            dist/VidGrab.exe
-            dist/VidGrab
+            dist/VidGrab*
+            dist/VidGrab.app/**/*
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
