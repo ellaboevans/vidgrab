@@ -18,8 +18,8 @@ jobs:
         include:
           - os: macos-latest
             name: macOS
-            artifact: VidGrab.app
-            path: dist/VidGrab.app
+            artifact: VidGrab.dmg
+            path: dist/VidGrab.dmg
           - os: windows-latest
             name: Windows
             artifact: VidGrab.exe
@@ -104,32 +104,26 @@ jobs:
         with:
           name: ${{ matrix.name }}-build
           path: ${{ matrix.path }}
+          retention-days: 1
 
-      - name: Create Release (macOS)
-        if: startsWith(github.ref, 'refs/tags/v') && matrix.os == 'macos-latest'
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloads
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/VidGrab.dmg
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Release (Windows)
-        if: startsWith(github.ref, 'refs/tags/v') && matrix.os == 'windows-latest'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/VidGrab.exe
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Release (Linux)
-        if: startsWith(github.ref, 'refs/tags/v') && matrix.os == 'ubuntu-latest'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/VidGrab
+          files: |
+            downloads/macOS-build/VidGrab.dmg
+            downloads/Windows-build/VidGrab.exe
+            downloads/Linux-build/VidGrab
           draft: false
           prerelease: false
         env:
