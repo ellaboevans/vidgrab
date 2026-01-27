@@ -30,10 +30,10 @@ jobs:
             path: dist/VidGrab
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4 # Updated to latest stable v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Updated to latest stable v5
         with:
           python-version: '3.11'
 
@@ -41,13 +41,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pyinstaller
 
       - name: Build executable (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          pip install pyinstaller
+          # Use --onedir (default) instead of --onefile for better .app bundle support
           pyinstaller \
-            --onefile \
+            --noconfirm \
             --windowed \
             --name VidGrab \
             --add-data "core:core" \
@@ -61,7 +62,6 @@ jobs:
       - name: Build executable (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          pip install pyinstaller
           pyinstaller `
             --onefile `
             --windowed `
@@ -77,7 +77,6 @@ jobs:
       - name: Build executable (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          pip install pyinstaller
           pyinstaller \
             --onefile \
             --windowed \
@@ -93,11 +92,13 @@ jobs:
       - name: Sign app (macOS)
         if: matrix.os == 'macos-latest'
         run: |
+          # Ad-hoc sign the .app bundle recursively
           codesign --force --deep --sign - dist/VidGrab.app
 
       - name: Create DMG (macOS)
         if: matrix.os == 'macos-latest'
         run: |
+          # Package the signed .app into a DMG
           hdiutil create \
             -volname "VidGrab" \
             -srcfolder dist/VidGrab.app \
@@ -115,20 +116,21 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: downloads
+          merge-multiple: true # Flattens the structure so files are easier to find
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            downloads/macOS-build/VidGrab.dmg
-            downloads/Windows-build/VidGrab.exe
-            downloads/Linux-build/VidGrab
+            downloads/VidGrab.dmg
+            downloads/VidGrab.exe
+            downloads/VidGrab
           draft: false
           prerelease: false
         env:
