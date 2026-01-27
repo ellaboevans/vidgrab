@@ -110,8 +110,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/VidGrab*
-            dist/VidGrab.app/**/*
+            dist/VidGrab.dmg
+            dist/VidGrab.exe
+            dist/VidGrab
           draft: false
           prerelease: false
         env:
