@@ -12,7 +12,7 @@ from core.engine import DownloadEngine
 from core.hooks import progress_hook_factory
 from core.queue import QueueManager
 from core.settings import SettingsManager
-from core.logger import log_error, log_info, AppLogger
+from core.logger import log_error, log_info, log_warning, AppLogger
 from core.validators import URLValidator
 from core.queue_persistence import QueuePersistence
 from ui.settings_dialog import SettingsDialog
