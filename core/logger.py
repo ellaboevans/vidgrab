@@ -7,8 +7,8 @@ from datetime import datetime
 class AppLogger:
     """Application logger with file and console output"""
     
-    def __init__(self, name="YouTubeDownloader"):
-        self.log_dir = Path.home() / ".youtube-downloader" / "logs"
+    def __init__(self, name="VidGrab"):
+        self.log_dir = Path.home() / ".vidgrab" / "logs"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
         self.logger = logging.getLogger(name)

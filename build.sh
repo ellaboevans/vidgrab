@@ -27,13 +27,13 @@ fi
 # Determine platform
 if [[ "$OSTYPE" == "darwin"* ]]; then
     PLATFORM="macOS"
-    OUTPUT_NAME="YouTube Downloader.app"
+    OUTPUT_NAME="VidGrab.app"
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
     PLATFORM="Windows"
-    OUTPUT_NAME="YouTubeDownloader.exe"
+    OUTPUT_NAME="VidGrab.exe"
 else
     PLATFORM="Linux"
-    OUTPUT_NAME="YouTubeDownloader"
+    OUTPUT_NAME="VidGrab"
 fi
 
 echo "🔨 Building for: $PLATFORM"
@@ -88,10 +88,10 @@ echo ""
 echo "📝 To distribute:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "  • Create a .dmg: hdiutil create -volname 'YouTube Downloader' -srcfolder dist -ov -format UDZO YouTube-Downloader.dmg"
-    echo "  • Sign app (optional): codesign -s - dist/YouTubeDownloader.app"
+    echo "  • Sign app (optional): codesign -s - dist/VidGrab.app"
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
     echo "  • Create installer with NSIS or MSI"
-    echo "  • Or just zip: dist/YouTubeDownloader.exe"
+    echo "  • Or just zip: dist/VidGrab.exe"
 else
     echo "  • Create AppImage or .tar.gz archive"
 fi

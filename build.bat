@@ -28,7 +28,7 @@ REM Clean previous builds
 echo. Cleaning previous builds...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
-if exist YouTubeDownloader.spec del YouTubeDownloader.spec
+if exist VidGrab.spec del VidGrab.spec
 
 REM Build
 echo. Building executable (this may take a minute)...

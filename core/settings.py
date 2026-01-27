@@ -20,7 +20,7 @@ class SettingsManager:
     """Manage app settings with file persistence"""
     
     def __init__(self):
-        self.config_dir = Path.home() / ".youtube-downloader"
+        self.config_dir = Path.home() / ".vidgrab"
         self.config_file = self.config_dir / "config.json"
         self.settings = self._load_settings()
     

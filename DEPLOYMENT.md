@@ -51,10 +51,10 @@ git push --tags
 ### Build Artifacts
 
 After a successful build, you'll have:
-- `YouTubeDownloader.dmg` - macOS installer
-- `YouTubeDownloader.exe` - Windows executable
-- `YouTubeDownloader` - Linux executable
-- `YouTubeDownloader.app` - macOS app bundle
+- `VidGrab.dmg` - macOS installer
+- `VidGrab.exe` - Windows executable
+- `VidGrab` - Linux executable
+- `VidGrab.app` - macOS app bundle
 
 ## GitHub Pages Landing Page
 
@@ -74,7 +74,7 @@ After a successful build, you'll have:
 
 3. **Your site is live at:**
    ```
-   https://yourusername.github.io/youtube-downloader
+   https://yourusername.github.io/vidgrab
    ```
 
 ### Customizing the Landing Page
@@ -83,7 +83,7 @@ Edit `index.html`:
 
 1. **Update GitHub repo links:**
    - Replace `yourusername` with your actual GitHub username
-   - Example: `https://github.com/YOUR_USERNAME/youtube-downloader`
+   - Example: `https://github.com/YOUR_USERNAME/vidgrab`
 
 2. **Update download links:**
    - Links point to releases: `releases/download/latest/`
@@ -100,13 +100,13 @@ Edit `index.html`:
 ### Example Download Link Format
 
 ```
-https://github.com/yourusername/youtube-downloader/releases/download/v1.0.0/YouTubeDownloader.exe
+https://github.com/yourusername/vidgrab/releases/download/v1.0.0/VidGrab.exe
 ```
 
 Replace:
 - `yourusername` - Your GitHub username
 - `v1.0.0` - Your release tag
-- `YouTubeDownloader.exe` - The file name
+- `VidGrab.exe` - The file name
 
 ## Full Release Workflow
 
@@ -197,9 +197,9 @@ Edit `.github/workflows/build.yml`:
   uses: softprops/action-gh-release@v1
   with:
     files: |
-      dist/YouTubeDownloader.dmg
-      dist/YouTubeDownloader.exe
-      dist/YouTubeDownloader
+      dist/VidGrab.dmg
+      dist/VidGrab.exe
+      dist/VidGrab
     body: |
       ## YouTube Downloader v1.0.0
 
@@ -208,9 +208,9 @@ Edit `.github/workflows/build.yml`:
       - Enhanced error handling
       
       ### Downloads
-      - macOS: YouTubeDownloader.dmg
-      - Windows: YouTubeDownloader.exe
-      - Linux: YouTubeDownloader
+      - macOS: VidGrab.dmg
+      - Windows: VidGrab.exe
+      - Linux: VidGrab
 ```
 
 ### Additional Platforms
@@ -234,13 +234,13 @@ For production, add code signing:
 **macOS:**
 ```bash
 # Create signing certificate
-codesign -s - dist/YouTubeDownloader.app
+codesign -s - dist/VidGrab.app
 ```
 
 **Windows:**
 ```bash
 # Requires code signing certificate
-signtool sign /f cert.pfx dist/YouTubeDownloader.exe
+signtool sign /f cert.pfx dist/VidGrab.exe
 ```
 
 ## Monitoring

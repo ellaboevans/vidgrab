@@ -34,13 +34,13 @@ A fast, user-friendly desktop application to download YouTube videos and playlis
 
 ### Option 1: Standalone Executable (Easiest)
 
-Visit the **[Official Download Page](https://yourusername.github.io/youtube-downloader/)** to download the latest version for your operating system.
+Visit the **[Official Download Page](https://yourusername.github.io/vidgrab/)** to download the latest version for your operating system.
 
 The page automatically detects your OS and offers the right download button. Or manually download:
 
-- **macOS**: `YouTubeDownloader.dmg` (drag to Applications)
-- **Windows**: `YouTubeDownloader.exe` (double-click to run)
-- **Linux**: `YouTubeDownloader` (make executable and run)
+- **macOS**: `VidGrab.dmg` (drag to Applications)
+- **Windows**: `VidGrab.exe` (double-click to run)
+- **Linux**: `VidGrab` (make executable and run)
 
 No installation needed, just download and run!
 
@@ -50,8 +50,8 @@ If you prefer to run from source or want to modify the code:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/youtube-downloader.git
-cd youtube-downloader
+git clone https://github.com/yourusername/vidgrab.git
+cd vidgrab
 ```
 
 2. Create a virtual environment:
@@ -133,9 +133,9 @@ https://www.youtube.com/@username
 ## File Locations
 
 - **Downloads**: Saved to your configured download folder (default: ~/Downloads)
-- **Settings**: `~/.youtube-downloader/config.json`
-- **Queue**: `~/.youtube-downloader/queue.json` (auto-saved)
-- **Logs**: `~/.youtube-downloader/logs/app.log`
+- **Settings**: `~/.vidgrab/config.json`
+- **Queue**: `~/.vidgrab/queue.json` (auto-saved)
+- **Logs**: `~/.vidgrab/logs/app.log`
 
 ## Keyboard Shortcuts
 
@@ -164,14 +164,14 @@ https://www.youtube.com/@username
 ### Settings Not Saving
 
 - Ensure you clicked **Save** in the Settings dialog
-- Check `~/.youtube-downloader/config.json` file exists
+- Check `~/.vidgrab/config.json` file exists
 - Restart the app and try again
 
 ### Log File Not Found
 
 - Logs are created after the first download
 - Click **View Logs** only after attempting a download
-- Check `~/.youtube-downloader/logs/` directory
+- Check `~/.vidgrab/logs/` directory
 
 ## Performance Tips
 

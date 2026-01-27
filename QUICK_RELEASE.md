@@ -24,7 +24,7 @@ git push origin main --tags
 
 ```bash
 # Open in browser
-open https://github.com/yourusername/youtube-downloader/actions
+open https://github.com/yourusername/vidgrab/actions
 ```
 
 Watch the build run in real-time, takes ~5-10 minutes.
@@ -43,7 +43,7 @@ Just change these in `index.html`:
 
 ```html
 <!-- Replace yourusername with your actual username -->
-https://github.com/yourusername/youtube-downloader/releases/download/latest/YouTubeDownloader.exe
+https://github.com/yourusername/vidgrab/releases/download/latest/VidGrab.exe
 ```
 
 ## Enable GitHub Pages (One-time Setup)
@@ -52,7 +52,7 @@ https://github.com/yourusername/youtube-downloader/releases/download/latest/YouT
 2. Select "Deploy from a branch"
 3. Choose `main` branch, root folder
 4. Save
-5. Your site: `https://yourusername.github.io/youtube-downloader`
+5. Your site: `https://yourusername.github.io/vidgrab`
 
 Done! Now you have:
 ✅ Automatic builds for all platforms
@@ -93,15 +93,15 @@ git tag v1.0.1
 git push origin main --tags
 
 # 3. Monitor build (opens your browser)
-open https://github.com/yourusername/youtube-downloader/actions
+open https://github.com/yourusername/vidgrab/actions
 
 # 4. Wait for completion (~5-10 min)
 
 # 5. Go to Releases and add notes (optional)
-open https://github.com/yourusername/youtube-downloader/releases
+open https://github.com/yourusername/vidgrab/releases
 
 # 6. Share with users
-echo "Download from: yourusername.github.io/youtube-downloader"
+echo "Download from: yourusername.github.io/vidgrab"
 ```
 
 ## Troubleshooting

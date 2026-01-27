@@ -9,7 +9,7 @@ class QueuePersistence:
     """Handle saving and loading queue to/from disk"""
     
     def __init__(self):
-        self.queue_dir = Path.home() / ".youtube-downloader"
+        self.queue_dir = Path.home() / ".vidgrab"
         self.queue_file = self.queue_dir / "queue.json"
         self.queue_dir.mkdir(parents=True, exist_ok=True)
     

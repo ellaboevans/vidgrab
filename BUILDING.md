@@ -21,7 +21,7 @@ chmod +x build.sh
 ./build.sh
 ```
 
-Output: `dist/YouTubeDownloader.app` (macOS) or `dist/YouTubeDownloader` (Linux)
+Output: `dist/VidGrab.app` (macOS) or `dist/VidGrab` (Linux)
 
 ### Windows
 
@@ -30,7 +30,7 @@ Output: `dist/YouTubeDownloader.app` (macOS) or `dist/YouTubeDownloader` (Linux)
 build.bat
 ```
 
-Output: `dist\YouTubeDownloader.exe`
+Output: `dist\VidGrab.exe`
 
 ## Manual Build (Advanced)
 
@@ -48,7 +48,7 @@ pip install pyinstaller
 pyinstaller \
     --onefile \
     --windowed \
-    --name YouTubeDownloader \
+    --name VidGrab \
     --add-data "core:core" \
     --add-data "ui:ui" \
     --hidden-import=yt_dlp \
@@ -64,7 +64,7 @@ pyinstaller \
 pyinstaller ^
     --onefile ^
     --windowed ^
-    --name YouTubeDownloader ^
+    --name VidGrab ^
     --add-data "core;core" ^
     --add-data "ui;ui" ^
     --hidden-import=yt_dlp ^
@@ -78,9 +78,9 @@ pyinstaller ^
 
 After building, executables are in the `dist` folder:
 
-- **macOS**: `dist/YouTubeDownloader.app` (app bundle)
-- **Windows**: `dist/YouTubeDownloader.exe`
-- **Linux**: `dist/YouTubeDownloader`
+- **macOS**: `dist/VidGrab.app` (app bundle)
+- **Windows**: `dist/VidGrab.exe`
+- **Linux**: `dist/VidGrab`
 
 ## Distribution
 
@@ -91,7 +91,7 @@ After building, executables are in the `dist` folder:
 # Create DMG (installer image)
 hdiutil create \
     -volname "YouTube Downloader" \
-    -srcfolder dist/YouTubeDownloader.app \
+    -srcfolder dist/VidGrab.app \
     -ov -format UDZO \
     YouTube-Downloader.dmg
 ```
@@ -101,7 +101,7 @@ Then distribute `YouTube-Downloader.dmg` to users.
 **Code Signing (Optional but recommended):**
 ```bash
 # Self-sign for local testing
-codesign -s - dist/YouTubeDownloader.app
+codesign -s - dist/VidGrab.app
 
 # For distribution, you'll need an Apple Developer account
 ```
@@ -109,7 +109,7 @@ codesign -s - dist/YouTubeDownloader.app
 ### Windows
 
 **For EXE Distribution:**
-1. **Simple**: Just distribute `dist/YouTubeDownloader.exe`
+1. **Simple**: Just distribute `dist/VidGrab.exe`
 2. **With Installer**: Use NSIS, MSI, or Inno Setup
 
 **Example with NSIS:**
@@ -128,13 +128,13 @@ AppVersion=1.0.0
 DefaultDirName={pf}\YouTube Downloader
 DefaultGroupName=YouTube Downloader
 OutputDir=dist
-OutputBaseFilename=YouTubeDownloader-Setup
+OutputBaseFilename=VidGrab-Setup
 
 [Files]
-Source: "dist\YouTubeDownloader.exe"; DestDir: "{app}"
+Source: "dist\VidGrab.exe"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\YouTube Downloader"; Filename: "{app}\YouTubeDownloader.exe"
+Name: "{group}\YouTube Downloader"; Filename: "{app}\VidGrab.exe"
 ```
 
 ### Linux
@@ -145,10 +145,10 @@ Name: "{group}\YouTube Downloader"; Filename: "{app}\YouTubeDownloader.exe"
 cd dist
 wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
 chmod +x appimagetool-x86_64.AppImage
-./appimagetool-x86_64.AppImage YouTubeDownloader YouTubeDownloader.AppImage
+./appimagetool-x86_64.AppImage VidGrab VidGrab.AppImage
 
 # Or create tar.gz archive
-tar -czf YouTubeDownloader.tar.gz YouTubeDownloader
+tar -czf VidGrab.tar.gz VidGrab
 ```
 
 ## Troubleshooting
@@ -164,11 +164,11 @@ pyinstaller ... --hidden-import=module_name main.py
 ### App won't start
 
 1. Check if running from terminal shows errors:
-   - macOS: `./dist/YouTubeDownloader.app/Contents/MacOS/YouTubeDownloader`
-   - Windows: Open Command Prompt and run `dist\YouTubeDownloader.exe`
-   - Linux: `./dist/YouTubeDownloader`
+   - macOS: `./dist/VidGrab.app/Contents/MacOS/VidGrab`
+   - Windows: Open Command Prompt and run `dist\VidGrab.exe`
+   - Linux: `./dist/VidGrab`
 
-2. Check the logs at `~/.youtube-downloader/logs/app.log`
+2. Check the logs at `~/.vidgrab/logs/app.log`
 
 ### Large executable size
 
@@ -182,9 +182,9 @@ This is normal and acceptable for desktop apps.
 ### Missing dependencies at runtime
 
 Ensure the built app has access to:
-- `.youtube-downloader/config.json` (settings)
-- `.youtube-downloader/queue.json` (saved queue)
-- `.youtube-downloader/logs/` (log files)
+- `.vidgrab/config.json` (settings)
+- `.vidgrab/queue.json` (saved queue)
+- `.vidgrab/logs/` (log files)
 
 These are created automatically in the user's home directory.
 

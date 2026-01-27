@@ -93,7 +93,7 @@ A PyQt6-based desktop application for downloading YouTube videos and playlists w
 
 #### 5. **Error Handling & Logging**
 - [ ] Detailed error messages displayed to user
-- [ ] Log file for debugging (`~/.youtube-downloader/logs/`)
+- [ ] Log file for debugging (`~/.vidgrab/logs/`)
 - [ ] Retry mechanism for failed downloads
 - [ ] Network error detection and user notification
 
@@ -201,7 +201,7 @@ Future considerations:
 ## 📁 Project Structure
 
 ```
-youtube-downloader/
+vidgrab/
 ├── ui/
 │   ├── app.py              # Main PyQt6 GUI application
 │   └── __init__.py
