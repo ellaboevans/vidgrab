@@ -58,16 +58,16 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           pip install pyinstaller
-          pyinstaller ^
-            --onefile ^
-            --windowed ^
-            --name VidGrab ^
-            --add-data "core;core" ^
-            --add-data "ui;ui" ^
-            --hidden-import=yt_dlp ^
-            --hidden-import=PyQt6.QtCore ^
-            --hidden-import=PyQt6.QtGui ^
-            --hidden-import=PyQt6.QtWidgets ^
+          pyinstaller `
+            --onefile `
+            --windowed `
+            --name VidGrab `
+            --add-data "core;core" `
+            --add-data "ui;ui" `
+            --hidden-import=yt_dlp `
+            --hidden-import=PyQt6.QtCore `
+            --hidden-import=PyQt6.QtGui `
+            --hidden-import=PyQt6.QtWidgets `
             main.py
 
       - name: Build executable (Linux)
