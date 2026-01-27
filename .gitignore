@@ -96,8 +96,12 @@ dist/
 *.tmp
 *.old
 
-# Node modules (if ever needed)
+# Node modules
 node_modules/
+.next/
+out/
+.pnpm-debug.log*
+pnpm-lock.yaml
 
 # macOS specific
 .AppleDouble
