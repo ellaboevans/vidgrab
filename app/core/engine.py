@@ -1,15 +1,28 @@
 import yt_dlp
 import os
-from core.logger import log_info, log_error
+import shutil
+from core.logger import log_info, log_error, log_warning
 
+FFMPEG_BINARY = None
+
+# Try pyffmpeg first (bundled in production builds)
 try:
     from pyffmpeg import FFmpeg
     ffmpeg_instance = FFmpeg()
     FFMPEG_BINARY = ffmpeg_instance.get_ffmpeg_bin()
-    log_info(f"FFmpeg binary located at: {FFMPEG_BINARY}")
+    if FFMPEG_BINARY:
+        log_info(f"FFmpeg found via pyffmpeg: {FFMPEG_BINARY}")
 except (ImportError, Exception) as e:
-    FFMPEG_BINARY = None
-    log_error(f"Failed to locate FFmpeg: {e}")
+    log_warning(f"pyffmpeg unavailable: {e}")
+
+# Fallback: Search for ffmpeg in system PATH
+if not FFMPEG_BINARY:
+    ffmpeg_path = shutil.which("ffmpeg")
+    if ffmpeg_path:
+        FFMPEG_BINARY = ffmpeg_path
+        log_info(f"FFmpeg found in system PATH: {FFMPEG_BINARY}")
+    else:
+        log_error("FFmpeg not found in PATH - audio/video merging may fail")
 
 class DownloadEngine:
     def __init__(self, output_dir, hooks=None, quality="best", format="mp4"):

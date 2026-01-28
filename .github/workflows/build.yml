@@ -43,6 +43,18 @@ jobs:
           pip install -r app/requirements.txt
           pip install pyinstaller
 
+      - name: Install FFmpeg (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install ffmpeg
+
+      - name: Install FFmpeg (Windows)
+        if: matrix.os == 'windows-latest'
+        run: choco install ffmpeg -y
+
+      - name: Install FFmpeg (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Build executable (macOS)
         if: matrix.os == 'macos-latest'
         working-directory: app
