@@ -1,24 +1,35 @@
 import logging
 import logging.handlers
 from pathlib import Path
-from datetime import datetime
 
 
-class AppLogger:
-    """Application logger with file and console output"""
+class _LoggerSingleton(logging.Logger):
+    """Singleton logger that ensures only one instance is created"""
     
-    def __init__(self, name="VidGrab"):
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
+        # Only initialize once
+        if self._initialized:
+            return
+        
+        _LoggerSingleton._initialized = True
+        
+        super().__init__("VidGrab")
+        self.setLevel(logging.DEBUG)
+        
+        # Setup log directory
         self.log_dir = Path.home() / ".vidgrab" / "logs"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(logging.DEBUG)
-        
-        # Remove any existing handlers to avoid duplicates
-        self.logger.handlers = []
-        
-        # File handler - rotated daily
-        log_file = self.log_dir / f"app.log"
+        # File handler - rotating file handler
+        log_file = self.log_dir / "app.log"
         file_handler = logging.handlers.RotatingFileHandler(
             log_file,
             maxBytes=5*1024*1024,  # 5MB per file
@@ -38,11 +49,10 @@ class AppLogger:
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
         
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(console_handler)
-    
-    def get_logger(self):
-        return self.logger
+        # Add handlers only if not already present
+        if not self.handlers:
+            self.addHandler(file_handler)
+            self.addHandler(console_handler)
     
     def get_log_file(self):
         """Get the current log file path"""
@@ -50,7 +60,7 @@ class AppLogger:
 
 
 # Global logger instance
-_logger = AppLogger().get_logger()
+_logger = _LoggerSingleton()
 
 
 def get_logger():

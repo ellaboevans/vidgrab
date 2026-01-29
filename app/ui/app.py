@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
     QProgressBar, QFileDialog, QListWidget, QListWidgetItem, QMessageBox,
@@ -12,9 +13,11 @@ from core.engine import DownloadEngine
 from core.hooks import progress_hook_factory
 from core.queue import QueueManager
 from core.settings import SettingsManager
-from core.logger import log_error, log_info, log_warning, AppLogger
+from core.logger import log_error, log_info, log_warning, get_logger
 from core.validators import URLValidator
 from core.queue_persistence import QueuePersistence
+from core.types import ItemStatus
+from core.download_session import DownloadSession
 from ui.settings_dialog import SettingsDialog
 from ui.splash_screen import show_splash, hide_splash
 
@@ -50,13 +53,13 @@ class DownloadWorker(QThread):
         )
 
         try:
-            self.item.status = "Downloading"
+            self.item.status = ItemStatus.DOWNLOADING
             self.started_one.emit()
             log_info(f"Starting download: {self.item.url}")
             
             # Check if we should stop before starting
             if not self._is_running:
-                self.item.status = "Cancelled"
+                self.item.status = ItemStatus.CANCELLED
                 self.finished_one.emit(False, "Download cancelled by user")
                 return
             
@@ -64,17 +67,17 @@ class DownloadWorker(QThread):
             
             # Check again after download completes
             if self._is_running:
-                self.item.status = "Completed"
+                self.item.status = ItemStatus.COMPLETED
                 log_info(f"Download completed: {self.item.title}")
                 self.finished_one.emit(True, "")
             else:
-                self.item.status = "Cancelled"
+                self.item.status = ItemStatus.CANCELLED
                 self.finished_one.emit(False, "Download cancelled by user")
         except Exception as e:
             error_msg = f"Download failed: {str(e)}"
             log_error(f"Error downloading {self.item.url}: {str(e)}", exc_info=True)
             if self._is_running:
-                self.item.status = "Failed"
+                self.item.status = ItemStatus.FAILED
                 self.error_message = error_msg
                 self.finished_one.emit(False, error_msg)
 
@@ -126,11 +129,9 @@ class YouTubeDownloader(QWidget):
         # Load saved queue if exists
         self.queue_persistence.load_queue(self.queue)
         
-        self.total_items = 0
-        self.completed_items = 0
-        self.current_worker = None
+        # Initialize download session (None when not downloading)
+        self.session: Optional[DownloadSession] = None
         self.metadata_workers = []  # Track active metadata workers
-        self.is_downloading = False
 
         # URL input
         layout.addWidget(QLabel("YouTube URL"))
@@ -192,20 +193,20 @@ class YouTubeDownloader(QWidget):
     def _populate_queue_ui(self):
         """Populate the queue list widget with loaded queue items"""
         for item in self.queue.queue:
-            if item.status == "Completed":
+            if item.status == ItemStatus.COMPLETED:
                 color = QColor("green")
                 icon = "✅"
-            elif item.status == "Failed":
+            elif item.status == ItemStatus.FAILED:
                 color = QColor("red")
                 icon = "❌"
-            elif item.status == "Cancelled":
+            elif item.status == ItemStatus.CANCELLED:
                 color = QColor("gray")
                 icon = "⏹️"
             else:  # Waiting, Downloading
                 color = QColor("gray")
                 icon = "⏳"
             
-            list_item = QListWidgetItem(f"{icon} {item.status}: {item.title}")
+            list_item = QListWidgetItem(f"{icon} {item.status.value}: {item.title}")
             list_item.setForeground(color)
             self.list_widget.addItem(list_item)
 
@@ -220,11 +221,11 @@ class YouTubeDownloader(QWidget):
                     worker.wait()
         
         # Stop the current download worker with timeout
-        if self.current_worker and self.current_worker.isRunning():
-            self.current_worker.stop()
-            if not self.current_worker.wait(5000):  # 5 second timeout
-                self.current_worker.terminate()
-                self.current_worker.wait()
+        if self.session and self.session.current_worker and self.session.current_worker.isRunning():
+            self.session.current_worker.stop()
+            if not self.session.current_worker.wait(5000):  # 5 second timeout
+                self.session.current_worker.terminate()
+                self.session.current_worker.wait()
         
         # Save queue before closing
         self.queue_persistence.save_queue(self.queue)
@@ -267,7 +268,7 @@ class YouTubeDownloader(QWidget):
     def view_logs(self):
         """Open log file in default text editor"""
         try:
-            log_file = AppLogger().get_log_file()
+            log_file = get_logger().get_log_file()
             if log_file.exists():
                 # Open with default application
                 if sys.platform == "darwin":  # macOS
@@ -350,9 +351,9 @@ class YouTubeDownloader(QWidget):
             QMessageBox.information(self, "Queue empty", "Please add at least one URL to the queue")
             return
 
-        self.total_items = len(self.queue.queue)
-        self.completed_items = 0
-        self.is_downloading = True
+        # Create new session for this batch of downloads
+        self.session = DownloadSession(queue_items=self.queue.queue)
+        self.session.is_running = True
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         self.start_next_download()
@@ -363,40 +364,46 @@ class YouTubeDownloader(QWidget):
             self.status_label.setText("All downloads completed")
             self.progress_bar.setValue(100)
             self.start_btn.setEnabled(True)
+            if self.session:
+                self.session.reset()
             return
 
         index = self.queue.current_index + 1
-        self.status_label.setText(f"Downloading {index} of {self.total_items}")
-        self.progress_bar.setValue(int((self.completed_items / self.total_items) * 100))
+        if self.session:
+            self.status_label.setText(f"Downloading {index} of {self.session.total_items}")
+            self.progress_bar.setValue(self.session.progress_percent)
 
-        self.current_worker = DownloadWorker(
+        worker = DownloadWorker(
             item,
             self.output_dir,
             quality=self.settings.video_quality,
             format=self.settings.format
         )
-        self.current_worker.progress.connect(lambda p, row=self.queue.current_index: self.update_item_progress(row, p))
-        self.current_worker.started_one.connect(lambda row=self.queue.current_index: self.set_item_status(row, "In Progress"))
-        self.current_worker.finished_one.connect(self.on_item_finished)
-        self.current_worker.start()
+        if self.session:
+            self.session.current_worker = worker
+        
+        worker.progress.connect(lambda p, row=self.queue.current_index: self.update_item_progress(row, p))
+        worker.started_one.connect(lambda row=self.queue.current_index: self.set_item_status(row, ItemStatus.DOWNLOADING))
+        worker.finished_one.connect(self.on_item_finished)
+        worker.start()
 
     def set_item_status(self, row, status, error_msg=""):
         item = self.list_widget.item(row)
         queue_item = self.queue.queue[row]
         title = queue_item.title
         
-        if status == "In Progress":
-            item.setText(f"▶️ {status}: {title}")
+        if status == ItemStatus.DOWNLOADING:
+            item.setText(f"▶️ Downloading: {title}")
             item.setForeground(QColor("blue"))
-        elif status == "Completed":
+        elif status == ItemStatus.COMPLETED:
             item.setText(f"✅ {title}")
             item.setForeground(QColor("green"))
-        elif status == "Failed":
+        elif status == ItemStatus.FAILED:
             queue_item.error_message = error_msg
             retry_text = f" (Retry {queue_item.retry_count}/{queue_item.max_retries})" if queue_item.retry_count > 0 else ""
             item.setText(f"❌ {title}{retry_text}")
             item.setForeground(QColor("red"))
-        elif status == "Cancelled":
+        elif status == ItemStatus.CANCELLED:
             item.setText(f"⏹️ {title}")
             item.setForeground(QColor("gray"))
 
@@ -410,14 +417,15 @@ class YouTubeDownloader(QWidget):
         queue_item = self.queue.queue[row]
         
         if success:
-            self.completed_items += 1
-            self.set_item_status(row, "Completed")
+            if self.session:
+                self.session.mark_item_done()
+            self.set_item_status(row, ItemStatus.COMPLETED)
             log_info(f"Successfully downloaded: {queue_item.title}")
         else:
             # Try to retry if we haven't exceeded max retries
             if queue_item.retry_count < queue_item.max_retries:
                 queue_item.retry_count += 1
-                self.set_item_status(row, "Failed", error_msg)
+                self.set_item_status(row, ItemStatus.FAILED, error_msg)
                 log_warning(f"Download failed, retrying ({queue_item.retry_count}/{queue_item.max_retries}): {queue_item.title}")
                 
                 # Show error to user
@@ -428,12 +436,13 @@ class YouTubeDownloader(QWidget):
                 )
                 
                 # Retry this item
-                if self.is_downloading:
+                if self.session and self.session.is_running:
                     self.start_next_download()
                 return
             else:
-                self.completed_items += 1
-                self.set_item_status(row, "Failed", error_msg)
+                if self.session:
+                    self.session.mark_item_done()
+                self.set_item_status(row, ItemStatus.FAILED, error_msg)
                 log_error(f"Download failed after {queue_item.max_retries} retries: {queue_item.title}")
                 
                 # Show final error to user
@@ -444,32 +453,34 @@ class YouTubeDownloader(QWidget):
                 )
 
         # Update overall progress
-        overall_percent = int((self.completed_items / self.total_items) * 100)
-        self.progress_bar.setValue(overall_percent)
+        if self.session:
+            self.progress_bar.setValue(self.session.progress_percent)
 
-        if self.is_downloading and self.queue.has_next():
+        if self.session and self.session.is_running and self.queue.has_next():
             self.start_next_download()
         else:
             self.status_label.setText("All downloads completed")
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
             self.progress_bar.setValue(100)
-            self.is_downloading = False
+            if self.session:
+                self.session.reset()
 
     def stop_downloads(self):
         """Stop current download and pause the queue"""
-        self.is_downloading = False
+        if self.session:
+            self.session.is_running = False
         self.status_label.setText("Downloads stopped")
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         
         # Stop the current worker gracefully
-        if self.current_worker and self.current_worker.isRunning():
-            self.current_worker.stop()
+        if self.session and self.session.current_worker and self.session.current_worker.isRunning():
+            self.session.current_worker.stop()
             # Wait with timeout to prevent freezing
-            if not self.current_worker.wait(5000):  # 5 second timeout
-                self.current_worker.terminate()
-                self.current_worker.wait()
+            if not self.session.current_worker.wait(5000):  # 5 second timeout
+                self.session.current_worker.terminate()
+                self.session.current_worker.wait()
 
 
 # ---------------- App Entry ----------------
@@ -480,13 +491,11 @@ def main():
     splash = show_splash(app)
     log_info("Splash screen shown")
     
-    try:
-        # Create and show main window
-        window = YouTubeDownloader()
-        window.show()
-        log_info("Main window loaded")
-    finally:
-        # Hide splash screen when ready
-        hide_splash(splash)
+    # Create main window (but don't show it yet)
+    window = YouTubeDownloader()
+    log_info("Main window created")
+    
+    # Hide splash and show main window after delay
+    hide_splash(splash, window, delay_ms=15000)
     
     sys.exit(app.exec())

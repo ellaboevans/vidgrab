@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from core.queue import QueueManager
-from core.types import QueueItem
+from core.types import QueueItem, ItemStatus
 from core.logger import log_info, log_error
 
 
@@ -21,13 +21,13 @@ class QueuePersistence:
                 {
                     "url": item.url,
                     "title": item.title,
-                    "status": item.status,
+                    "status": item.status.value,  # Convert enum to string for JSON
                     "error_message": item.error_message,
                     "retry_count": item.retry_count,
                     "max_retries": item.max_retries,
                 }
                 for item in queue_manager.queue
-                if item.status != "Completed"  # Don't persist completed items
+                if item.status != ItemStatus.COMPLETED  # Don't persist completed items
             ]
             
             with open(self.queue_file, 'w') as f:
@@ -55,10 +55,14 @@ class QueuePersistence:
             
             # Restore queue items
             for item_data in items_data:
+                status_str = item_data.get("status", "Waiting")
+                # Convert string back to enum
+                status = ItemStatus(status_str) if status_str in [s.value for s in ItemStatus] else ItemStatus.WAITING
+                
                 item = QueueItem(
                     url=item_data.get("url", ""),
                     title=item_data.get("title", ""),
-                    status=item_data.get("status", "Waiting"),
+                    status=status,
                     error_message=item_data.get("error_message", ""),
                     retry_count=item_data.get("retry_count", 0),
                     max_retries=item_data.get("max_retries", 3),

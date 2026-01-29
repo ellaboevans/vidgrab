@@ -109,3 +109,6 @@ pnpm-lock.yaml
 *.swp
 .env.local
 .env.*.local
+
+# agents
+*.agents
