@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   RiLightbulbFlashLine,
@@ -54,9 +54,12 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative py-24 px-6 overflow-hidden bg-gradient-to-b from-transparent via-card/30 to-transparent"
-    >
-      <BackgroundPattern variant="grid" position="bottom-right" intensity="light" />
+      className="relative py-24 px-6 overflow-hidden bg-linear-to-b from-transparent via-card/30 to-transparent">
+      <BackgroundPattern
+        variant="grid"
+        position="bottom-right"
+        intensity="heavy"
+      />
       <div className="max-w-7xl mx-auto">
         {/* Section header */}
         <div className="mb-12 md:mb-20 text-center px-4">
@@ -75,15 +78,14 @@ export function FeaturesSection() {
             const Icon = feature.icon;
             return (
               <motion.div
-                key={idx}
+                key={idx + 1}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="group p-6 rounded-xl border border-border bg-card/40 hover:bg-card/80 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
-              >
+                className="group p-6 rounded-xl border border-border bg-card/40 hover:bg-card/80 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-4 group-hover:from-primary/40 group-hover:to-secondary/40 transition-all">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:from-primary/40 group-hover:to-secondary/40 transition-all">
                   <Icon className="w-6 h-6 text-primary" />
                 </div>
 
@@ -98,7 +100,7 @@ export function FeaturesSection() {
                 </p>
 
                 {/* Accent line */}
-                <div className="mt-4 h-1 w-0 bg-gradient-to-r from-primary to-secondary rounded-full group-hover:w-8 transition-all duration-300" />
+                <div className="mt-4 h-1 w-0 bg-linear-to-r from-primary to-secondary rounded-full group-hover:w-8 transition-all duration-300" />
               </motion.div>
             );
           })}

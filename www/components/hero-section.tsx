@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { RiDownloadCloud2Fill, RiLightbulbFlashLine, RiShieldCheckLine, RiCpuLine } from "@remixicon/react";
+import {
+  RiDownloadCloud2Fill,
+  RiLightbulbFlashLine,
+  RiShieldCheckLine,
+  RiCpuLine,
+  RiMoneyCnyCircleLine,
+} from "@remixicon/react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BackgroundPattern } from "./background-pattern";
 
 const FEATURED_STATS = [
-  { label: "Downloads", value: "1M+", icon: RiDownloadCloud2Fill },
-  { label: "Speed", value: "100 Mbps", icon: RiLightbulbFlashLine },
+  { label: "Price", value: "Free", icon: RiMoneyCnyCircleLine },
+  { label: "Speed", value: "Solid", icon: RiLightbulbFlashLine },
   { label: "Privacy", value: "100%", icon: RiShieldCheckLine },
   { label: "Zero CPU", value: "Idle", icon: RiCpuLine },
 ];
@@ -40,8 +46,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0 }}
-          className="mb-6 md:mb-8 inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-sm"
-        >
+          className="mb-6 md:mb-8 inline-flex items-center gap-2 px-3 md:px-4 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-sm">
           <RiLightbulbFlashLine className="w-3 md:w-4 h-3 md:h-4 text-primary" />
           <span className="text-xs md:text-sm font-medium text-primary">
             Now with Playlist Support
@@ -53,8 +58,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="font-mono-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 md:mb-6 leading-tight"
-        >
+          className="font-mono-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 md:mb-6 leading-tight">
           Download YouTube
           <br />
           <span className="gradient-text">at Lightning Speed</span>
@@ -65,10 +69,16 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-2xl mb-8 md:mb-12 leading-relaxed"
-        >
-          VidGrab brings the power of yt-dlp to your desktop. No ads, no
-          tracking, no nonsense. Just pure speed and reliability.
+          className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-2xl mb-8 md:mb-12 leading-relaxed">
+          <span className="underline decoration-wavy decoration-2 decoration-secondary">
+            VidGrab
+          </span>{" "}
+          brings the power of{" "}
+          <span className="underline decoration-wavy decoration-1 decoration-secondary">
+            yt-dlp
+          </span>{" "}
+          to your desktop. No ads, no tracking, no nonsense. Just pure speed and
+          reliability.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -76,13 +86,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-16 md:mb-20"
-        >
+          className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-16 md:mb-20">
           <a
             href="/download"
-            className="group relative px-8 py-4 rounded-lg bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/50 hover:scale-105"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            className="group relative px-8 py-4 rounded-lg bg-primary text-primary-foreground font-semibold overflow-hidden transition-all hover:shadow-lg hover:shadow-primary/10 hover:scale-105">
+            <div className="absolute inset-0 bg-linear-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative flex items-center justify-center gap-2">
               <RiDownloadCloud2Fill className="w-5 h-5" />
               Download Now
@@ -93,8 +101,7 @@ export function HeroSection() {
             href="https://github.com/ellaboevans/vidgrab"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-8 py-4 rounded-lg border-2 border-accent text-accent font-semibold hover:bg-accent/10 transition-all hover:shadow-lg hover:shadow-accent/20"
-          >
+            className="px-8 py-4 rounded-lg text-center border-2 border-accent text-accent font-semibold hover:bg-accent/10 transition-all hover:shadow-lg hover:shadow-accent/10">
             View on GitHub
           </a>
         </motion.div>
@@ -104,20 +111,18 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
-        >
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {FEATURED_STATS.map((stat, idx) => {
             const Icon = stat.icon;
             const isActive = idx === activeStatIndex;
             return (
               <div
-                key={idx}
+                key={idx + 1}
                 className={`p-6 rounded-lg border transition-all duration-500 ${
                   isActive
                     ? "glass-effect border-primary/50 bg-primary/10"
                     : "border-border bg-card/50"
-                }`}
-              >
+                }`}>
                 <div className="flex items-center gap-3 mb-2">
                   <Icon
                     className={`w-5 h-5 transition-colors ${
@@ -131,8 +136,7 @@ export function HeroSection() {
                 <div
                   className={`text-2xl font-bold transition-all ${
                     isActive ? "text-primary scale-105" : "text-foreground"
-                  }`}
-                >
+                  }`}>
                   {stat.value}
                 </div>
               </div>

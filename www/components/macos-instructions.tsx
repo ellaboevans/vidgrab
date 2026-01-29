@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { RiAppleFill, RiCheckLine, RiTerminalLine } from "@remixicon/react";
@@ -24,8 +24,7 @@ const STEPS = [
   },
   {
     title: "Done!",
-    description:
-      "VidGrab is now ready to use. You only need to do this once.",
+    description: "VidGrab is now ready to use. You only need to do this once.",
     terminal: false,
   },
 ];
@@ -40,7 +39,7 @@ export function MacOSInstructions() {
   };
 
   return (
-    <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-transparent via-primary/5 to-transparent">
+    <section className="py-24 px-6 relative overflow-hidden bg-linear-to-b from-transparent via-primary/5 to-transparent">
       {/* Background accent */}
       <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-primary/10 rounded-full filter blur-3xl opacity-20 pointer-events-none" />
 
@@ -48,7 +47,7 @@ export function MacOSInstructions() {
         {/* Header */}
         <div className="mb-12 md:mb-16">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 md:mb-6">
-            <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
               <RiAppleFill className="w-6 h-6 text-primary" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold font-mono-display">
@@ -56,9 +55,9 @@ export function MacOSInstructions() {
             </h2>
           </div>
           <p className="text-base sm:text-lg text-foreground/60 mb-6 md:mb-8">
-            macOS Gatekeeper may block VidGrab on first launch since it's not
-            notarized. This is normal and doesn't indicate a security issue.
-            Follow these steps to get started:
+            macOS Gatekeeper may block VidGrab on first launch since it&apos;s
+            not notarized. This is normal and doesn&apos;t indicate a security
+            issue. Follow these steps to get started:
           </p>
         </div>
 
@@ -66,11 +65,10 @@ export function MacOSInstructions() {
         <div className="space-y-4 mb-12 md:mb-16">
           {STEPS.map((step, index) => (
             <div
-              key={index}
-              className="group relative p-6 rounded-lg border border-border bg-card/40 hover:bg-card/80 transition-all hover:border-primary/50"
-            >
+              key={step.title}
+              className="group relative p-6 rounded-lg border border-border bg-card/40 hover:bg-card/80 transition-all hover:border-primary/50">
               {/* Step number */}
-              <div className="absolute -left-6 top-6 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
+              <div className="absolute -left-6 top-6 w-12 h-12 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
                 {index + 1}
               </div>
 
@@ -95,9 +93,8 @@ export function MacOSInstructions() {
                         {step.command}
                       </code>
                       <button
-                        onClick={() => copyCommand(step.command!, index)}
-                        className="flex-shrink-0 px-3 py-1 rounded bg-primary/20 hover:bg-primary/30 text-primary text-xs font-medium transition-all"
-                      >
+                        onClick={() => copyCommand(step.command, index)}
+                        className="shrink-0 px-3 py-1 rounded bg-primary/20 hover:bg-primary/30 text-primary text-xs font-medium transition-all">
                         {copiedIndex === index ? "Copied!" : "Copy"}
                       </button>
                     </div>
@@ -113,57 +110,26 @@ export function MacOSInstructions() {
           ))}
         </div>
 
-        {/* Alternative Method */}
-        <div className="p-6 rounded-lg border-2 border-accent/40 bg-accent/5">
-          <h3 className="text-lg font-bold mb-3">No Terminal? Use This Instead</h3>
-          <ol className="space-y-3 text-foreground/70">
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
-                1
-              </span>
-              <span>Open <strong>Applications</strong> folder</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
-                2
-              </span>
-              <span>Right-click <strong>VidGrab.app</strong></span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
-                3
-              </span>
-              <span>Click <strong>Open</strong></span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
-                4
-              </span>
-              <span>When macOS shows a warning, click <strong>Open</strong> again</span>
-            </li>
-          </ol>
-        </div>
-
         {/* FAQ Section */}
         <div className="mt-16 space-y-6">
           <h3 className="text-2xl font-bold">Common Questions</h3>
 
           <div className="space-y-4">
             <div className="p-6 rounded-lg border border-border bg-card/40">
-              <h4 className="font-bold mb-2">Why does macOS show this warning?</h4>
+              <h4 className="font-bold mb-2">
+                Why does macOS show this warning?
+              </h4>
               <p className="text-foreground/70">
                 Apple requires all distributed apps to be notarized using a paid
                 Developer ID ($99/year). Since VidGrab is a free, open-source
-                project, it's distributed without notarization. The warning is
-                about <strong>verification</strong>, not malware. You can always
-                review the{" "}
+                project, it&apos;s distributed without notarization. The warning
+                is about <strong>verification</strong>, not malware. You can
+                always review the{" "}
                 <a
                   href="https://github.com/ellaboevans/vidgrab"
-                  className="text-primary hover:underline"
-                >
+                  className="text-primary hover:underline">
                   full source code on GitHub
                 </a>
-                .
               </p>
             </div>
 
@@ -172,19 +138,19 @@ export function MacOSInstructions() {
               <p className="text-foreground/70 mb-3">Absolutely. VidGrab is:</p>
               <ul className="space-y-2 text-foreground/70">
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   100% open source
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   No background services
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   No system modifications
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   No bundled installers
                 </li>
               </ul>
@@ -192,7 +158,7 @@ export function MacOSInstructions() {
 
             <div className="p-6 rounded-lg border border-border bg-card/40">
               <h4 className="font-bold mb-2">
-                What if the app doesn't open?
+                What if the app doesn&apos;t open?
               </h4>
               <p className="text-foreground/70 mb-3">
                 Run VidGrab from Terminal to see error output:
@@ -206,8 +172,7 @@ export function MacOSInstructions() {
                 If you encounter issues, please{" "}
                 <a
                   href="https://github.com/ellaboevans/vidgrab/issues"
-                  className="text-primary hover:underline"
-                >
+                  className="text-primary hover:underline">
                   open an issue on GitHub
                 </a>{" "}
                 with the output.

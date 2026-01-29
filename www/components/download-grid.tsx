@@ -1,44 +1,107 @@
+"use client";
+
 import {
   RiAppleFill,
   RiWindowsFill,
   RiTerminalBoxLine,
   RiDownloadCloud2Fill,
+  RemixiconComponentType,
 } from "@remixicon/react";
+import { useEffect, useState } from "react";
 
-const DOWNLOADS = [
+interface DownloadAsset {
+  name: string;
+  icon: RemixiconComponentType;
+  description: string;
+  specs: string[];
+  downloadLink?: string;
+  theme: "primary" | "accent" | "secondary";
+  status: "ready" | "coming-soon";
+  downloadCount?: number;
+  assetName?: string;
+}
+
+const DOWNLOADS: DownloadAsset[] = [
   {
     name: "macOS",
     icon: RiAppleFill,
     description: "Universal binary for Intel & Apple Silicon",
     specs: ["macOS 10.14+", "Intel or Apple Silicon", "~50 MB"],
-    downloadLink: "https://github.com/ellaboevans/vidgrab/releases",
-    filename: "VidGrab.dmg",
-    notes: "Requires right-click → Open on first launch (Gatekeeper). See instructions below.",
+    downloadLink: "#",
     theme: "primary",
+    status: "ready",
+    assetName: "VidGrab.dmg",
   },
   {
     name: "Windows",
     icon: RiWindowsFill,
     description: "64-bit executable, standalone install",
     specs: ["Windows 10/11", "64-bit processor", "~100 MB"],
-    downloadLink: "https://github.com/ellaboevans/vidgrab/releases",
-    filename: "VidGrab.exe",
-    notes: "Double-click to run. No installation required.",
+    downloadLink: "#",
     theme: "accent",
+    status: "coming-soon",
   },
   {
     name: "Linux",
     icon: RiTerminalBoxLine,
     description: "Universal binary, works on most distros",
     specs: ["Any modern distro", "glibc 2.29+", "~50 MB"],
-    downloadLink: "https://github.com/ellaboevans/vidgrab/releases",
-    filename: "VidGrab",
-    notes: "Make executable: chmod +x VidGrab, then run",
+    downloadLink: "#",
     theme: "secondary",
+    status: "coming-soon",
   },
 ];
 
 export function DownloadGrid() {
+  const [downloads, setDownloads] = useState<DownloadAsset[]>(DOWNLOADS);
+
+  useEffect(() => {
+    const fetchLatestRelease = async () => {
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/ellaboevans/vidgrab/releases/latest",
+        );
+        if (!response.ok) throw new Error("Failed to fetch release");
+        const release = await response.json();
+
+        // Find macOS asset (VidGrab.dmg)
+        const macOSAsset = release.assets.find(
+          (asset: { name: string }) => asset.name === "VidGrab.dmg",
+        );
+
+        if (macOSAsset) {
+          setDownloads((prev) =>
+            prev.map((dl) =>
+              dl.name === "macOS"
+                ? {
+                    ...dl,
+                    downloadLink: macOSAsset.browser_download_url,
+                    downloadCount: macOSAsset.download_count,
+                  }
+                : dl,
+            ),
+          );
+        }
+      } catch (error) {
+        console.error("Failed to fetch latest release:", error);
+        // Fallback to releases page if API fails
+        setDownloads((prev) =>
+          prev.map((dl) =>
+            dl.name === "macOS"
+              ? {
+                  ...dl,
+                  downloadLink:
+                    "https://github.com/ellaboevans/vidgrab/releases/latest",
+                }
+              : dl,
+          ),
+        );
+      }
+    };
+
+    fetchLatestRelease();
+  }, []);
+
   return (
     <section className="py-24 px-6 pt-32 overflow-hidden">
       {/* Background accent */}
@@ -59,7 +122,7 @@ export function DownloadGrid() {
 
         {/* Download Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 px-4">
-          {DOWNLOADS.map((platform) => {
+          {downloads.map((platform) => {
             const Icon = platform.icon;
             const themeColor =
               platform.theme === "primary"
@@ -85,21 +148,7 @@ export function DownloadGrid() {
                       : themeColor === "accent"
                         ? "rgba(0, 212, 255, 0.05)"
                         : "rgba(247, 147, 30, 0.05)",
-                }}
-              >
-                {/* Hover gradient overlay */}
-                <div
-                  className="absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity rounded-xl -z-10 blur-lg"
-                  style={{
-                    background:
-                      themeColor === "primary"
-                        ? "linear-gradient(135deg, #ff6b35, transparent)"
-                        : themeColor === "accent"
-                          ? "linear-gradient(135deg, #00d4ff, transparent)"
-                          : "linear-gradient(135deg, #f7931e, transparent)",
-                  }}
-                />
-
+                }}>
                 <div className="relative z-10">
                   {/* Icon */}
                   <div
@@ -111,15 +160,16 @@ export function DownloadGrid() {
                           : themeColor === "accent"
                             ? "linear-gradient(135deg, #00d4ff, rgba(0,212,255,0.5))"
                             : "linear-gradient(135deg, #f7931e, rgba(247,147,30,0.5))",
-                    }}
-                  >
+                    }}>
                     <Icon className="w-8 h-8 text-foreground" />
                   </div>
 
-                  {/* Name */}
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
-                    {platform.name}
-                  </h3>
+                  {/* Name + Download Count */}
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-2xl font-bold group-hover:text-primary transition-colors">
+                      {platform.name}
+                    </h3>
+                  </div>
 
                   {/* Description */}
                   <p className="text-foreground/60 text-sm mb-4">
@@ -131,59 +181,76 @@ export function DownloadGrid() {
                     {platform.specs.map((spec) => (
                       <li
                         key={spec}
-                        className="text-sm text-foreground/70 flex items-center gap-2"
-                      >
+                        className="text-sm text-foreground/70 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                         {spec}
                       </li>
                     ))}
                   </ul>
 
-                  {/* Notes */}
-                  <p className="text-xs text-foreground/50 mb-6 italic">
-                    {platform.notes}
-                  </p>
-
-                  {/* Filename */}
-                  <div className="mb-6 p-3 rounded-lg bg-black/40 border border-border">
-                    <p className="text-xs text-foreground/50 uppercase tracking-widest">
-                      Filename
-                    </p>
-                    <p className="font-mono text-sm text-foreground">
-                      {platform.filename}
-                    </p>
-                  </div>
-
                   {/* Download Button */}
-                  <a
-                    href={platform.downloadLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 border"
-                    style={{
-                      background:
-                        themeColor === "primary"
-                          ? "rgba(255, 107, 53, 0.2)"
-                          : themeColor === "accent"
-                            ? "rgba(0, 212, 255, 0.2)"
-                            : "rgba(247, 147, 30, 0.2)",
-                      borderColor:
-                        themeColor === "primary"
-                          ? "rgba(255, 107, 53, 0.5)"
-                          : themeColor === "accent"
-                            ? "rgba(0, 212, 255, 0.5)"
-                            : "rgba(247, 147, 30, 0.5)",
-                      color:
-                        themeColor === "primary"
-                          ? "#ff6b35"
-                          : themeColor === "accent"
-                            ? "#00d4ff"
-                            : "#f7931e",
-                    }}
-                  >
-                    <RiDownloadCloud2Fill className="w-5 h-5" />
-                    Download
-                  </a>
+                  {platform.status === "ready" ? (
+                    <a
+                      href={platform.downloadLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 border hover:opacity-80"
+                      style={{
+                        background:
+                          themeColor === "primary"
+                            ? "rgba(255, 107, 53, 0.2)"
+                            : themeColor === "accent"
+                              ? "rgba(0, 212, 255, 0.2)"
+                              : "rgba(247, 147, 30, 0.2)",
+                        borderColor:
+                          themeColor === "primary"
+                            ? "rgba(255, 107, 53, 0.5)"
+                            : themeColor === "accent"
+                              ? "rgba(0, 212, 255, 0.5)"
+                              : "rgba(247, 147, 30, 0.5)",
+                        color:
+                          themeColor === "primary"
+                            ? "#ff6b35"
+                            : themeColor === "accent"
+                              ? "#00d4ff"
+                              : "#f7931e",
+                      }}>
+                      <RiDownloadCloud2Fill className="w-5 h-5" />
+                      {platform.downloadCount !== undefined &&
+                        platform.downloadCount > 0 && (
+                          <span>
+                            ({platform.downloadCount.toLocaleString()})
+                          </span>
+                        )}
+                      Download
+                    </a>
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 border opacity-50 cursor-not-allowed"
+                      style={{
+                        background:
+                          themeColor === "primary"
+                            ? "rgba(255, 107, 53, 0.1)"
+                            : themeColor === "accent"
+                              ? "rgba(0, 212, 255, 0.1)"
+                              : "rgba(247, 147, 30, 0.1)",
+                        borderColor:
+                          themeColor === "primary"
+                            ? "rgba(255, 107, 53, 0.3)"
+                            : themeColor === "accent"
+                              ? "rgba(0, 212, 255, 0.3)"
+                              : "rgba(247, 147, 30, 0.3)",
+                        color:
+                          themeColor === "primary"
+                            ? "#ff6b35"
+                            : themeColor === "accent"
+                              ? "#00d4ff"
+                              : "#f7931e",
+                      }}>
+                      Coming Soon
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -193,7 +260,7 @@ export function DownloadGrid() {
         {/* Alternative: From Source */}
         <div className="glass-effect border border-border rounded-xl p-6 md:p-8 mx-4">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-            <span className="w-1 h-8 bg-gradient-to-b from-primary to-secondary rounded-full" />
+            <div className="w-1 h-8 bg-linear-to-b from-primary to-secondary rounded-full" />
             Build from Source
           </h2>
           <p className="text-foreground/70 mb-6">
@@ -204,8 +271,7 @@ export function DownloadGrid() {
             href="https://github.com/ellaboevans/vidgrab#building-your-own-executable"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent/20 text-accent font-semibold border border-accent/50 hover:bg-accent/30 hover:border-accent transition-all"
-          >
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent/20 text-accent font-semibold border border-accent/50 hover:bg-accent/30 hover:border-accent transition-all">
             View Build Instructions
           </a>
         </div>
