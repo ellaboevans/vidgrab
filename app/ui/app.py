@@ -321,7 +321,7 @@ class YouTubeDownloader(QWidget):
         # Temporarily use URL as title until metadata is fetched
         item_index = self.list_widget.count()
         self.queue.add(url, url)
-        list_item = QListWidgetItem(f"⏳ Waiting: Fetching title...")
+        list_item = QListWidgetItem("⏳ Waiting: Fetching title...")
         list_item.setForeground(QColor("gray"))
         self.list_widget.addItem(list_item)
 
