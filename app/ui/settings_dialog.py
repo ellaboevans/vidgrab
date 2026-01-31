@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt
 from pathlib import Path
 
 from core.settings import SettingsManager, Settings
+from ui.theme import Colors, load_stylesheet
 
 
 class SettingsDialog(QDialog):
@@ -14,9 +15,15 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None, settings_manager: SettingsManager = None):
         super().__init__(parent)
         self.setWindowTitle("Settings")
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(550)
+        self.setMinimumHeight(400)
         self.settings_manager = settings_manager
         self.current_settings = settings_manager.get() if settings_manager else Settings()
+        
+        # Apply stylesheet to dialog
+        stylesheet = load_stylesheet()
+        self.setStyleSheet(stylesheet)
+        
         self.init_ui()
     
     def init_ui(self):
@@ -142,10 +149,10 @@ class SettingsDialog(QDialog):
         )
         
         if self.settings_manager.save(new_settings):
-            QMessageBox.information(self, "Success", "Settings saved successfully")
+            QMessageBox.information(self, "Success", "Settings saved successfully.")
             self.accept()
         else:
-            QMessageBox.warning(self, "Error", "Failed to save settings")
+            QMessageBox.warning(self, "Error", "Failed to save settings.")
     
     def reset_defaults(self):
         """Reset all settings to defaults"""

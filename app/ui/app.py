@@ -3,7 +3,7 @@ from typing import Optional
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
     QProgressBar, QFileDialog, QListWidget, QListWidgetItem, QMessageBox,
-    QHBoxLayout, QDialog
+    QHBoxLayout, QDialog, QSpacerItem, QSizePolicy, QFrame
 )
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
 from PyQt6.QtGui import QColor
@@ -20,6 +20,7 @@ from core.types import ItemStatus
 from core.download_session import DownloadSession
 from ui.settings_dialog import SettingsDialog
 from ui.splash_screen import show_splash, hide_splash
+from ui.theme import load_stylesheet, Colors
 
 
 # ---------------- Worker Thread ----------------
@@ -115,9 +116,11 @@ class YouTubeDownloader(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("VidGrab")
-        self.setMinimumSize(600, 480)
+        self.setMinimumSize(700, 550)
 
         layout = QVBoxLayout()
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
 
         # Initialize settings and queue persistence
         self.settings_manager = SettingsManager()
@@ -133,51 +136,92 @@ class YouTubeDownloader(QWidget):
         self.session: Optional[DownloadSession] = None
         self.metadata_workers = []  # Track active metadata workers
 
-        # URL input
-        layout.addWidget(QLabel("YouTube URL"))
+        # URL input section
+        url_label = QLabel("YouTube URL")
+        url_label.setObjectName("sectionHeader")
+        layout.addWidget(url_label)
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("Paste video or playlist URL")
         layout.addWidget(self.url_input)
 
-        # Folder chooser
-        self.folder_label = QLabel("Download folder")
-        layout.addWidget(self.folder_label)
-        self.folder_btn = QPushButton("Choose Folder")
+        # Folder chooser section with shaded background
+        folder_label_header = QLabel("Download Folder")
+        folder_label_header.setObjectName("sectionHeader")
+        layout.addWidget(folder_label_header)
+        
+        # Create frame with background for folder display
+        folder_frame = QFrame()
+        folder_frame.setObjectName("folderFrame")
+        folder_frame_layout = QHBoxLayout()
+        folder_frame_layout.setContentsMargins(0, 0, 0, 0)
+        
+        self.folder_label = QLabel(self.settings.download_folder)
+        self.folder_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;")
+        self.folder_label.setWordWrap(True)
+        
+        self.folder_btn = QPushButton("Browse")
+        self.folder_btn.setMaximumWidth(100)
         self.folder_btn.clicked.connect(self.choose_folder)
-        layout.addWidget(self.folder_btn)
+        
+        folder_frame_layout.addWidget(self.folder_label)
+        folder_frame_layout.addStretch()
+        folder_frame_layout.addWidget(self.folder_btn)
+        folder_frame.setLayout(folder_frame_layout)
+        layout.addWidget(folder_frame)
 
-        # Buttons
+        # Spacing
+        layout.addSpacing(4)
+
+        # Action buttons
         btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(8)
+        
         self.add_btn = QPushButton("Add to Queue")
         self.start_btn = QPushButton("Start Downloads")
+        self.start_btn.setObjectName("primaryButton")
         self.stop_btn = QPushButton("Stop")
+        self.stop_btn.setObjectName("dangerButton")
         self.clear_queue_btn = QPushButton("Clear Queue")
-        self.logs_btn = QPushButton("View Logs")
-        self.settings_btn = QPushButton("Settings")
+        
         self.add_btn.clicked.connect(self.add_to_queue)
         self.start_btn.clicked.connect(self.start_queue)
         self.stop_btn.clicked.connect(self.stop_downloads)
         self.clear_queue_btn.clicked.connect(self.clear_queue)
-        self.logs_btn.clicked.connect(self.view_logs)
-        self.settings_btn.clicked.connect(self.open_settings)
         self.stop_btn.setEnabled(False)
+        
         btn_layout.addWidget(self.add_btn)
         btn_layout.addWidget(self.start_btn)
         btn_layout.addWidget(self.stop_btn)
         btn_layout.addWidget(self.clear_queue_btn)
         btn_layout.addStretch()
+        
+        # Settings and logs buttons (right side)
+        self.logs_btn = QPushButton("Logs")
+        self.settings_btn = QPushButton("Settings")
+        self.logs_btn.clicked.connect(self.view_logs)
+        self.settings_btn.clicked.connect(self.open_settings)
+        self.logs_btn.setMaximumWidth(80)
+        self.settings_btn.setMaximumWidth(80)
+        
         btn_layout.addWidget(self.logs_btn)
         btn_layout.addWidget(self.settings_btn)
         layout.addLayout(btn_layout)
 
-        # Progress bar
+        # Progress bar with percentage display
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
+        self.progress_bar.setFormat("%p%")  # Show percentage
         layout.addWidget(self.progress_bar)
 
         # Status
         self.status_label = QLabel("Idle")
+        self.status_label.setObjectName("statusLabel")
         layout.addWidget(self.status_label)
+
+        # Download list header
+        queue_header = QLabel("Download Queue")
+        queue_header.setObjectName("sectionHeader")
+        layout.addWidget(queue_header)
 
         # Download list
         self.list_widget = QListWidget()
@@ -194,16 +238,16 @@ class YouTubeDownloader(QWidget):
         """Populate the queue list widget with loaded queue items"""
         for item in self.queue.queue:
             if item.status == ItemStatus.COMPLETED:
-                color = QColor("green")
+                color = QColor(Colors.STATUS_COMPLETED)
                 icon = "✅"
             elif item.status == ItemStatus.FAILED:
-                color = QColor("red")
+                color = QColor(Colors.STATUS_FAILED)
                 icon = "❌"
             elif item.status == ItemStatus.CANCELLED:
-                color = QColor("gray")
+                color = QColor(Colors.STATUS_CANCELLED)
                 icon = "⏹️"
             else:  # Waiting, Downloading
-                color = QColor("gray")
+                color = QColor(Colors.STATUS_WAITING)
                 icon = "⏳"
             
             list_item = QListWidgetItem(f"{icon} {item.status.value}: {item.title}")
@@ -289,7 +333,7 @@ class YouTubeDownloader(QWidget):
         folder = QFileDialog.getExistingDirectory(self, "Select download folder")
         if folder:
             self.output_dir = folder
-            self.folder_label.setText(f"Download folder: {folder}")
+            self.folder_label.setText(folder)
 
     # ---------------- Queue ----------------
     def add_to_queue(self):
@@ -322,7 +366,7 @@ class YouTubeDownloader(QWidget):
         item_index = self.list_widget.count()
         self.queue.add(url, url)
         list_item = QListWidgetItem("⏳ Waiting: Fetching title...")
-        list_item.setForeground(QColor("gray"))
+        list_item.setForeground(QColor(Colors.STATUS_WAITING))
         self.list_widget.addItem(list_item)
 
         # Fetch metadata in background
@@ -394,18 +438,18 @@ class YouTubeDownloader(QWidget):
         
         if status == ItemStatus.DOWNLOADING:
             item.setText(f"▶️ Downloading: {title}")
-            item.setForeground(QColor("blue"))
+            item.setForeground(QColor(Colors.STATUS_DOWNLOADING))
         elif status == ItemStatus.COMPLETED:
             item.setText(f"✅ {title}")
-            item.setForeground(QColor("green"))
+            item.setForeground(QColor(Colors.STATUS_COMPLETED))
         elif status == ItemStatus.FAILED:
             queue_item.error_message = error_msg
             retry_text = f" (Retry {queue_item.retry_count}/{queue_item.max_retries})" if queue_item.retry_count > 0 else ""
             item.setText(f"❌ {title}{retry_text}")
-            item.setForeground(QColor("red"))
+            item.setForeground(QColor(Colors.STATUS_FAILED))
         elif status == ItemStatus.CANCELLED:
             item.setText(f"⏹️ {title}")
-            item.setForeground(QColor("gray"))
+            item.setForeground(QColor(Colors.STATUS_CANCELLED))
 
     def update_item_progress(self, row, percent):
         item = self.list_widget.item(row)
@@ -486,6 +530,11 @@ class YouTubeDownloader(QWidget):
 # ---------------- App Entry ----------------
 def main():
     app = QApplication(sys.argv)
+    
+    # Apply stylesheet
+    stylesheet = load_stylesheet()
+    app.setStyleSheet(stylesheet)
+    log_info("Stylesheet applied")
     
     # Show splash screen while loading
     splash = show_splash(app)
