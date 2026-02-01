@@ -73,7 +73,8 @@ jobs:
         run: pnpm install
 
       - name: Build with Next.js
-        run: pnpm --filter www next build
+        working-directory: www
+        run: pnpm next build
         env:
           NODE_ENV: production
 
