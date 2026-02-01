@@ -7,6 +7,7 @@ This guide explains how to set up CI/CD builds and deploy the landing page.
 ### What It Does
 
 The CI/CD pipeline (`.github/workflows/build.yml`) automatically:
+
 1. **Triggers on tag push** (e.g., `git tag v1.0.0 && git push --tags`)
 2. **Builds executables** for macOS, Windows, and Linux
 3. **Creates a DMG** for macOS distribution
@@ -21,6 +22,7 @@ The CI/CD pipeline (`.github/workflows/build.yml`) automatically:
 ### How to Use
 
 1. **Push a new tag to trigger a build:**
+
 ```bash
 # Make your changes and commit
 git add .
@@ -51,6 +53,7 @@ git push --tags
 ### Build Artifacts
 
 After a successful build, you'll have:
+
 - `VidGrab.dmg` - macOS installer
 - `VidGrab.exe` - Windows executable
 - `VidGrab` - Linux executable
@@ -104,6 +107,7 @@ https://github.com/yourusername/vidgrab/releases/download/v1.0.0/VidGrab.exe
 ```
 
 Replace:
+
 - `yourusername` - Your GitHub username
 - `v1.0.0` - Your release tag
 - `VidGrab.exe` - The file name
@@ -113,6 +117,7 @@ Replace:
 Here's the complete process for releasing a new version:
 
 ### 1. Prepare Release
+
 ```bash
 # Update version in code (if applicable)
 # Commit changes
@@ -125,11 +130,13 @@ git commit -m "Release v1.0.0: New features and bug fixes
 ```
 
 ### 2. Create Tag
+
 ```bash
 git tag -a v1.0.0 -m "Version 1.0.0 Release"
 ```
 
 ### 3. Push to GitHub
+
 ```bash
 git push origin main
 git push origin v1.0.0
@@ -137,11 +144,13 @@ git push origin v1.0.0
 ```
 
 ### 4. Wait for Build
+
 - Go to Actions tab
 - Watch workflow complete (5-10 minutes)
 - Check for any build errors
 
 ### 5. Review Release
+
 - Go to Releases page
 - Edit the auto-created release
 - Add release notes
@@ -149,6 +158,7 @@ git push origin v1.0.0
 - Click "Publish release"
 
 ### 6. Update Landing Page (Optional)
+
 - Edit `index.html` to point to new version
 - Or use "latest" tag for automatic updates
 
@@ -157,6 +167,7 @@ git push origin v1.0.0
 ### Build Fails on macOS
 
 Common issue: PyQt6 installation
+
 ```bash
 # Solution: Ensure requirements.txt has correct versions
 pip install --upgrade PyQt6
@@ -165,6 +176,7 @@ pip install --upgrade PyQt6
 ### Build Fails on Windows
 
 Common issue: Long file paths
+
 ```bash
 # Solution: Enable long paths in Windows
 # Run as Admin: git config --system core.longpaths true
@@ -173,6 +185,7 @@ Common issue: Long file paths
 ### Build Fails on Linux
 
 Common issue: Missing libraries
+
 ```bash
 # Solution: Install system dependencies
 sudo apt-get install libxkbcommon-x11-0 libxkbcommon0
@@ -181,6 +194,7 @@ sudo apt-get install libxkbcommon-x11-0 libxkbcommon0
 ### Release Not Created
 
 Check:
+
 1. Tag was pushed (not just committed): `git push --tags`
 2. Workflow completed successfully
 3. Check Actions tab for errors
@@ -201,12 +215,12 @@ Edit `.github/workflows/build.yml`:
       dist/VidGrab.exe
       dist/VidGrab
     body: |
-      ## YouTube Downloader v1.0.0
+      ## VidGrab v1.0.0
 
       ### Features
       - New download queue system
       - Enhanced error handling
-      
+
       ### Downloads
       - macOS: VidGrab.dmg
       - Windows: VidGrab.exe
@@ -232,12 +246,14 @@ strategy:
 For production, add code signing:
 
 **macOS:**
+
 ```bash
 # Create signing certificate
 codesign -s - dist/VidGrab.app
 ```
 
 **Windows:**
+
 ```bash
 # Requires code signing certificate
 signtool sign /f cert.pfx dist/VidGrab.exe
@@ -267,7 +283,7 @@ Having deployment issues?
 4. **Test locally** - build on your machine first
 
 Common resources:
+
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
 - [GitHub Pages Docs](https://docs.github.io/en/pages)
 - [PyInstaller Docs](https://pyinstaller.org/)
-

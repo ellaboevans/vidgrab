@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description:
     "Fast, reliable YouTube video downloader. Download videos, playlists, and channels in your preferred quality and format. Open source, no ads, pure speed.",
   keywords: [
-    "YouTube downloader",
+    "VidGrab",
     "video downloader",
     "playlist downloader",
     "yt-dlp",
@@ -35,9 +35,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
       </head>
-      <body
-        className={`${ibmPlexSans.variable} antialiased overflow-x-hidden`}
-      >
+      <body className={`${ibmPlexSans.variable} antialiased overflow-x-hidden`}>
         {children}
       </body>
     </html>

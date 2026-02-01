@@ -1,31 +1,36 @@
-# YouTube Downloader
+# VidGrab
 
 A fast, user-friendly desktop application to download YouTube videos and playlists with a clean PyQt6 interface.
 
 ## Features
 
 ✨ **Easy to Use**
+
 - Paste YouTube URLs (videos, playlists, channels, handles)
 - Clean, intuitive interface
 - Real-time progress tracking
 
 📦 **Batch Downloading**
+
 - Queue multiple URLs at once
 - Download entire playlists
 - Saved queue persists between sessions
 
 ⚙️ **Customizable**
+
 - Choose video quality (best, 1080p, 720p, 480p, audio-only)
 - Select output format (MP4, MKV, WebM)
 - Set default download folder
 
 🛡️ **Reliable**
+
 - Automatic retry on failures (up to 3 times)
 - Thread-safe multi-threaded downloads
 - Detailed error messages
 - View application logs for debugging
 
 ⏸️ **Control**
+
 - Pause/stop downloads at any time
 - Cancel individual items in queue
 - Clear completed items
@@ -49,23 +54,27 @@ No installation needed, just download and run!
 If you prefer to run from source or want to modify the code:
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/vidgrab.git
 cd vidgrab
 ```
 
 2. Create a virtual environment:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 3. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. Run the app:
+
 ```bash
 python -m main
 ```
@@ -85,6 +94,7 @@ Want to build an executable yourself? See [BUILDING.md](BUILDING.md) for detaile
 ### Configuring Settings
 
 Click **Settings** to customize:
+
 - **Download Folder**: Where videos are saved (default: ~/Downloads)
 - **Video Quality**: best, 1080p, 720p, 480p, or audio-only
 - **Format**: MP4, MKV, or WebM
@@ -103,6 +113,7 @@ Click **Settings** to customize:
 ### Viewing Logs
 
 Click **View Logs** to open the application log file. Useful for:
+
 - Troubleshooting failed downloads
 - Checking detailed error messages
 - Understanding what happened during a download session
@@ -110,22 +121,26 @@ Click **View Logs** to open the application log file. Useful for:
 ## Supported URL Types
 
 ✅ Single videos
+
 ```
 https://www.youtube.com/watch?v=dQw4w9WgXcQ
 https://youtu.be/dQw4w9WgXcQ
 ```
 
 ✅ Playlists
+
 ```
 https://www.youtube.com/playlist?list=PLxxx
 ```
 
 ✅ Channels
+
 ```
 https://www.youtube.com/channel/UCxxx
 ```
 
 ✅ Handles (custom URLs)
+
 ```
 https://www.youtube.com/@username
 ```
@@ -139,12 +154,12 @@ https://www.youtube.com/@username
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+A | Add to Queue (when input focused) |
-| Ctrl+Q | Quit application |
+| Shortcut | Action                            |
+| -------- | --------------------------------- |
+| Ctrl+A   | Add to Queue (when input focused) |
+| Ctrl+Q   | Quit application                  |
 
-*More shortcuts coming soon*
+_More shortcuts coming soon_
 
 ## Troubleshooting
 
@@ -239,6 +254,7 @@ MIT License - see LICENSE file for details
 ## Support
 
 Need help? Check:
+
 - **FAQ**: Common questions and answers (coming soon)
 - **Logs**: Application logs for error details
 - **GitHub Issues**: Search existing issues or create a new one

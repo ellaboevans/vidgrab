@@ -1,8 +1,8 @@
 @echo off
-REM YouTube Downloader Build Script for Windows
+REM VidGrab Build Script for Windows
 
 echo ===================================
-echo YouTube Downloader Build Script
+echo VidGrab Build Script
 echo ===================================
 echo.
 

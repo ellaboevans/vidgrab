@@ -1,10 +1,11 @@
-# Building YouTube Downloader
+# Building VidGrab
 
 This guide explains how to build standalone executables for macOS and Windows.
 
 ## Prerequisites
 
 Ensure you have:
+
 - Python 3.8+
 - Virtual environment activated: `. .venv/bin/activate` (macOS/Linux) or `.venv\Scripts\activate` (Windows)
 - All dependencies installed: `pip install -r requirements.txt`
@@ -87,18 +88,20 @@ After building, executables are in the `dist` folder:
 ### macOS
 
 **For App Distribution:**
+
 ```bash
 # Create DMG (installer image)
 hdiutil create \
-    -volname "YouTube Downloader" \
+    -volname "VidGrab" \
     -srcfolder dist/VidGrab.app \
     -ov -format UDZO \
-    YouTube-Downloader.dmg
+    VidGrab.dmg
 ```
 
-Then distribute `YouTube-Downloader.dmg` to users.
+Then distribute `VidGrab.dmg` to users.
 
 **Code Signing (Optional but recommended):**
+
 ```bash
 # Self-sign for local testing
 codesign -s - dist/VidGrab.app
@@ -109,10 +112,12 @@ codesign -s - dist/VidGrab.app
 ### Windows
 
 **For EXE Distribution:**
+
 1. **Simple**: Just distribute `dist/VidGrab.exe`
 2. **With Installer**: Use NSIS, MSI, or Inno Setup
 
 **Example with NSIS:**
+
 ```bash
 # Install NSIS: https://nsis.sourceforge.io/
 # Create installer.nsi with NSIS script
@@ -120,13 +125,14 @@ makensis installer.nsi
 ```
 
 **Example with InnoSetup:**
+
 ```
 ; installer.iss
 [Setup]
-AppName=YouTube Downloader
+AppName=VidGrab
 AppVersion=1.0.0
-DefaultDirName={pf}\YouTube Downloader
-DefaultGroupName=YouTube Downloader
+DefaultDirName={pf}\VidGrab
+DefaultGroupName=VidGrab
 OutputDir=dist
 OutputBaseFilename=VidGrab-Setup
 
@@ -134,12 +140,13 @@ OutputBaseFilename=VidGrab-Setup
 Source: "dist\VidGrab.exe"; DestDir: "{app}"
 
 [Icons]
-Name: "{group}\YouTube Downloader"; Filename: "{app}\VidGrab.exe"
+Name: "{group}\VidGrab"; Filename: "{app}\VidGrab.exe"
 ```
 
 ### Linux
 
 **For Distribution:**
+
 ```bash
 # Create AppImage (recommended)
 cd dist
@@ -173,6 +180,7 @@ pyinstaller ... --hidden-import=module_name main.py
 ### Large executable size
 
 The executable includes Python, PyQt6, and yt-dlp, so it's typically:
+
 - macOS: ~150-200MB
 - Windows: ~120-150MB
 - Linux: ~120-150MB
@@ -182,6 +190,7 @@ This is normal and acceptable for desktop apps.
 ### Missing dependencies at runtime
 
 Ensure the built app has access to:
+
 - `.vidgrab/config.json` (settings)
 - `.vidgrab/queue.json` (saved queue)
 - `.vidgrab/logs/` (log files)
@@ -209,7 +218,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - run: pip install -r requirements.txt
       - run: pip install pyinstaller
       - run: |
@@ -236,7 +245,7 @@ After building:
 ## Support
 
 Having issues building? Check:
+
 - PyInstaller docs: https://pyinstaller.org/
 - yt-dlp compatibility: https://github.com/yt-dlp/yt-dlp
 - PyQt6 documentation: https://www.riverbankcomputing.com/software/pyqt/
-

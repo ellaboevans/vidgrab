@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# YouTube Downloader Build Script
+# VidGrab Build Script
 # Builds executables for the current platform
 
 set -e
 
 echo "==================================="
-echo "YouTube Downloader Build Script"
+echo "VidGrab Build Script"
 echo "==================================="
 echo ""
 
@@ -87,7 +87,7 @@ fi
 echo ""
 echo "📝 To distribute:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "  • Create a .dmg: hdiutil create -volname 'YouTube Downloader' -srcfolder dist -ov -format UDZO YouTube-Downloader.dmg"
+    echo "  • Create a .dmg: hdiutil create -volname 'VidGrab' -srcfolder dist -ov -format UDZO VidGrab.dmg"
     echo "  • Sign app (optional): codesign -s - dist/VidGrab.app"
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
     echo "  • Create installer with NSIS or MSI"
