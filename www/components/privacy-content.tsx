@@ -205,7 +205,7 @@ export function PrivacyContent() {
               <li className="flex items-start gap-3">
                 <span className="text-primary font-bold mt-1">•</span>
                 <span>
-                  <code className="bg-card/50 px-2 py-1 rounded text-sm">
+                  <code className="bg-neutral-800/50 px-2 py-1 rounded text-sm">
                     ~/.vidgrab/config.json
                   </code>{" "}
                   - Your settings (quality, format, download folder)
@@ -214,7 +214,7 @@ export function PrivacyContent() {
               <li className="flex items-start gap-3">
                 <span className="text-primary font-bold mt-1">•</span>
                 <span>
-                  <code className="bg-card/50 px-2 py-1 rounded text-sm">
+                  <code className="bg-neutral-800/50 px-2 py-1 rounded text-sm">
                     ~/.vidgrab/queue.json
                   </code>{" "}
                   - Download queue (incomplete items only)
@@ -223,7 +223,7 @@ export function PrivacyContent() {
               <li className="flex items-start gap-3">
                 <span className="text-primary font-bold mt-1">•</span>
                 <span>
-                  <code className="bg-card/50 px-2 py-1 rounded text-sm">
+                  <code className="bg-neutral-800/50 px-2 py-1 rounded text-sm">
                     ~/.vidgrab/logs/app.log
                   </code>{" "}
                   - Application logs (for debugging)
