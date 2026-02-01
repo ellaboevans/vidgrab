@@ -548,6 +548,6 @@ def main():
     log_info("Main window created")
     
     # Hide splash and show main window after delay
-    hide_splash(splash, window, delay_ms=15000)
+    hide_splash(splash, window, delay_ms=3000)
     
     sys.exit(app.exec())
