@@ -81,7 +81,7 @@ python -m main
 
 ### Building Your Own Executable
 
-Want to build an executable yourself? See [BUILDING.md](BUILDING.md) for detailed instructions on building for macOS, Windows, and Linux.
+Want to build an executable yourself? See [BUILDING.md](app/BUILDING.md) for detailed instructions on building for macOS, Windows, and Linux.
 
 ## Usage
 
@@ -229,36 +229,64 @@ We welcome contributions! Whether bug fixes, features, or documentation:
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Documentation
+
+Complete documentation for users and developers:
+
+### For Users
+
+- **[Installation Guide](MACOS_INSTALLATION.md)** - Detailed macOS setup and Gatekeeper workaround
+- **[CHANGELOG](CHANGELOG.md)** - Version history, features, and release notes
+- **[License](LICENSE)** - MIT License terms
+
+### For Developers
+
+- **[Building](app/BUILDING.md)** - Build executables for macOS, Windows, Linux
+- **[Deployment](app/DEPLOYMENT.md)** - Release and CI/CD process
+- **[Contributing](CONTRIBUTING.md)** - Contribution guidelines and code style
+
+---
+
 ## License
 
-MIT License - see LICENSE file for details
+[MIT License](LICENSE) - Copyright © 2026 Ella Boevans
+
+See LICENSE file for full details.
 
 ## Credits
 
 - Built with [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
 - Powered by [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+- FFmpeg integration via [pyffmpeg](https://github.com/hashr0t/pyffmpeg)
 
 ## Roadmap
+
+See [CHANGELOG.md](CHANGELOG.md#roadmap---planned-features) for detailed roadmap:
 
 - [x] Basic download functionality
 - [x] Queue management
 - [x] Settings customization
 - [x] Error handling & retry
 - [x] Queue persistence
-- [ ] Dark mode
-- [ ] Parallel downloads (multiple simultaneous)
-- [ ] Video conversion tools
-- [ ] Scheduled downloads
-- [ ] YouTube channel subscriptions
+- [ ] Keyboard shortcuts (v1.1)
+- [ ] Right-click context menu (v1.1)
+- [ ] Completion notifications (v1.1)
+- [ ] Parallel downloads (v2.0 - architectural change)
+- [ ] Video conversion tools (v2.0)
 
 ## Support
 
-Need help? Check:
+Need help? Check these resources:
 
-- **FAQ**: Common questions and answers (coming soon)
-- **Logs**: Application logs for error details
-- **GitHub Issues**: Search existing issues or create a new one
+- **Troubleshooting**: See "Troubleshooting" section above
+- **Installation Issues**: See [MACOS_INSTALLATION.md](MACOS_INSTALLATION.md)
+- **Build Issues**: See [BUILDING.md](app/BUILDING.md)
+- **Feature Requests**: See [CONTRIBUTING.md](CONTRIBUTING.md#-feature-requests)
+- **Bug Reports**: See [CONTRIBUTING.md](CONTRIBUTING.md#-bug-reports)
+- **Logs**: Click "View Logs" in app to debug issues
 
 ---
+
+**Version**: 1.0.0 | **Last Updated**: February 2026
 
 Made with ❤️ for the YouTube download community
