@@ -249,7 +249,7 @@ Complete documentation for users and developers:
 
 ## License
 
-[MIT License](LICENSE) - Copyright © 2026 Ella Boevans
+[MIT License](LICENSE) - Copyright © 2026 Elabo Evans
 
 See LICENSE file for full details.
 
