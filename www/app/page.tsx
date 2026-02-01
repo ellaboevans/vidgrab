@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/hero-section";
 import { FeaturesSection } from "@/components/features-section";
 import { QualityOptions } from "@/components/quality-options";
 import { PlatformShowcase } from "@/components/platform-showcase";
+import { FAQSection } from "@/components/faq-section";
 import { DownloadSection } from "@/components/download-section";
 import { Footer } from "@/components/footer";
 
@@ -14,6 +15,7 @@ export default function Home() {
       <FeaturesSection />
       <QualityOptions />
       <PlatformShowcase />
+      <FAQSection />
       <DownloadSection />
       <Footer />
     </main>
