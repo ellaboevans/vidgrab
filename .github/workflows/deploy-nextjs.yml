@@ -80,17 +80,6 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Debug - Check output directory
-        run: |
-          echo "=== Contents of www/ ==="
-          ls -la www/
-          echo "=== Checking for out directory ==="
-          [ -d "www/out" ] && echo "✓ out/ exists" || echo "✗ out/ NOT found"
-          echo "=== Checking for .next directory ==="
-          [ -d "www/.next" ] && echo "✓ .next/ exists" || echo "✗ .next/ NOT found"
-          echo "=== Checking next.config.ts ==="
-          cat www/next.config.ts
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
