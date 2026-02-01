@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RiDownloadCloud2Fill } from "@remixicon/react";
+import { GitHubButton } from "@/components/github-button";
 
 export function TopNav() {
   return (
@@ -31,13 +32,7 @@ export function TopNav() {
             className="hidden sm:inline text-xs md:text-sm text-foreground/70 hover:text-foreground transition-colors">
             Download
           </a>
-          <a
-            href="https://github.com/ellaboevans/vidgrab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 md:px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs md:text-sm font-medium transition-colors border border-primary/20">
-            GitHub
-          </a>
+          <GitHubButton />
         </div>
       </div>
     </nav>
