@@ -55,7 +55,7 @@ jobs:
         with:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-          cache-dependency-path: "www/pnpm-lock.yaml"
+          cache-dependency-path: ${{ steps.detect-package-manager.outputs.manager == 'pnpm' && 'www/pnpm-lock.yaml' || 'www/package*.json' }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
