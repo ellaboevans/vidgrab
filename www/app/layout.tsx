@@ -82,8 +82,6 @@ export default function RootLayout({
         />
         <meta name="color-scheme" content="dark" />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
-        <link rel="canonical" href="https://vidgrab.dev" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://github.com" />
         <script
           type="application/ld+json"
