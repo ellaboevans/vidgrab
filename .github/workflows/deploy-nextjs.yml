@@ -71,7 +71,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: www
-        run: pnpm install
+        run: pnpm install --no-workspace-root
 
       - name: Build with Next.js
         working-directory: www
