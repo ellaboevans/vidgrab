@@ -67,7 +67,7 @@ QProgressBar {
     margin: 0px;
     padding: 0px;
     text-align: center;
-    color: #00d9ff;
+    color: #0f1419;
     font-weight: 600;
     font-size: 11px;
 }
