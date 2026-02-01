@@ -74,6 +74,11 @@ jobs:
 
       - name: Build with Next.js
         run: pnpm --filter www next build
+        env:
+          NODE_ENV: production
+
+      - name: Debug - Check output directory
+        run: ls -la www/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
