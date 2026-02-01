@@ -70,10 +70,12 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('www/package-lock.json', 'www/yarn.lock') }}-
 
       - name: Install dependencies
+        working-directory: www
         run: pnpm install
 
       - name: Build with Next.js
-        run: pnpm --filter www next build
+        working-directory: www
+        run: pnpm next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
