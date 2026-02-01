@@ -4,9 +4,23 @@ import { DynamicReleases } from "@/components/dynamic-releases";
 import { RiHistoryLine } from "@remixicon/react";
 
 export const metadata = {
-  title: "Changelog - VidGrab",
+  title: "VidGrab Changelog - Version History & Release Notes",
   description:
-    "View the complete history of VidGrab updates, features, and improvements.",
+    "Track all VidGrab updates, features, bug fixes, and improvements. Latest version 1.0.0 with real-time progress tracking and enhanced performance.",
+  keywords: [
+    "VidGrab changelog",
+    "version history",
+    "release notes",
+    "updates",
+    "YouTube downloader updates",
+  ],
+  openGraph: {
+    title: "VidGrab Changelog - Version History & Release Notes",
+    description:
+      "Track all VidGrab updates, features, bug fixes, and improvements.",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL as string}/changelog`,
+    type: "website",
+  },
 };
 
 export default function ChangelogPage() {
