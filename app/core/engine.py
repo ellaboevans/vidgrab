@@ -115,6 +115,8 @@ class DownloadEngine:
             "retries": 3,  # Retry failed downloads
             "fragment_retries": 5,  # Retry failed fragments more aggressively
             "file_access_retries": 5,  # Retry file access
+            "concurrent_fragment_downloads": 8,  # Download fragments in parallel (higher = faster)
+            "downloader_args": {"http_chunk_size": 10485760},  # 10MB chunks for faster downloads
         }
         
         # Use bundled ffmpeg from pyffmpeg if available
