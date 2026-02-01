@@ -64,10 +64,12 @@ jobs:
       - name: Restore cache
         uses: actions/cache@v4
         with:
-          path: www/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('www/package-lock.json', 'www/yarn.lock') }}-${{ hashFiles('www/**.[jt]s', 'www/**.[jt]sx') }}
+          path: |
+            www/.next/cache
+            .pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('www/package-lock.json', 'www/yarn.lock') }}-
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install
