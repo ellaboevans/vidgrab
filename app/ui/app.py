@@ -25,7 +25,7 @@ from ui.theme import load_stylesheet, Colors
 
 # ---------------- Worker Thread ----------------
 class DownloadWorker(QThread):
-    progress = pyqtSignal(int)
+    progress = pyqtSignal(int, str)  # percent, detail_string
     finished_one = pyqtSignal(bool, str)  # success, error_message
     started_one = pyqtSignal()
 
@@ -39,9 +39,9 @@ class DownloadWorker(QThread):
         self.error_message = ""
 
     def run(self):
-        def on_progress(percent):
+        def on_progress(percent, detail=""):
             if self._is_running:
-                self.progress.emit(percent)
+                self.progress.emit(percent, detail)
 
         def on_done(filename):
             pass
@@ -426,7 +426,7 @@ class YouTubeDownloader(QWidget):
         if self.session:
             self.session.current_worker = worker
         
-        worker.progress.connect(lambda p, row=self.queue.current_index: self.update_item_progress(row, p))
+        worker.progress.connect(lambda p, d, row=self.queue.current_index: self.update_item_progress(row, p, d))
         worker.started_one.connect(lambda row=self.queue.current_index: self.set_item_status(row, ItemStatus.DOWNLOADING))
         worker.finished_one.connect(self.on_item_finished)
         worker.start()
@@ -451,10 +451,13 @@ class YouTubeDownloader(QWidget):
             item.setText(f"⏹️ {title}")
             item.setForeground(QColor(Colors.STATUS_CANCELLED))
 
-    def update_item_progress(self, row, percent):
+    def update_item_progress(self, row, percent, detail=""):
         item = self.list_widget.item(row)
         title = self.queue.queue[row].title
-        item.setText(f"▶️ In Progress: {title} ({percent}%)")
+        detail_str = f" — {detail}" if detail else ""
+        item.setText(f"▶️ {title} ({percent}%){detail_str}")
+        # Update main progress bar with current download percentage
+        self.progress_bar.setValue(percent)
 
     def on_item_finished(self, success, error_msg=""):
         row = self.queue.current_index
