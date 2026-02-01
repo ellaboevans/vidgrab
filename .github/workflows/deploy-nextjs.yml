@@ -71,26 +71,10 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('www/package-lock.json', 'www/yarn.lock') }}-
 
       - name: Install dependencies
-        run: |
-          cd www
-          if [ -f "pnpm-lock.yaml" ]; then
-            pnpm install
-          elif [ -f "yarn.lock" ]; then
-            yarn install
-          else
-            npm ci
-          fi
+        run: cd www && pnpm install
 
       - name: Build with Next.js
-        run: |
-          cd www
-          if [ -f "pnpm-lock.yaml" ]; then
-            pnpm next build
-          elif [ -f "yarn.lock" ]; then
-            yarn next build
-          else
-            npx next build
-          fi
+        run: cd www && pnpm next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
