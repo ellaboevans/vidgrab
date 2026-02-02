@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds } from "date-fns";
 
 interface TimeUnit {
   label: string;
@@ -17,25 +18,21 @@ export function CountdownTimer() {
 
   useEffect(() => {
     const calculateCountdown = () => {
-      const launchDate = new Date("2026-02-7").getTime();
-      const now = Date.now();
-      const difference = launchDate - now;
+      const launchDate = new Date("2026-02-07");
+      const now = new Date();
 
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-        );
-        const minutes = Math.floor(
-          (difference % (1000 * 60 * 60)) / (1000 * 60),
-        );
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      const days = differenceInDays(launchDate, now);
+      
+      if (days >= 0) {
+        const hours = differenceInHours(launchDate, now) % 24;
+        const minutes = differenceInMinutes(launchDate, now) % 60;
+        const seconds = differenceInSeconds(launchDate, now) % 60;
 
         setTimeUnits([
-          { label: "Days", value: days },
-          { label: "Hours", value: hours },
-          { label: "Minutes", value: minutes },
-          { label: "Seconds", value: seconds },
+          { label: "Days", value: Math.max(0, days) },
+          { label: "Hours", value: Math.max(0, hours) },
+          { label: "Minutes", value: Math.max(0, minutes) },
+          { label: "Seconds", value: Math.max(0, seconds) },
         ]);
       }
     };
