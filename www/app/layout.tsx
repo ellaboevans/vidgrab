@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: `${SITE_URL}/og-image.png`,
+        url: `${SITE_URL}/opengraph-image.jpg`,
         width: 1200,
         height: 630,
         alt: "VidGrab - YouTube Video Downloader",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "VidGrab - Download YouTube Videos in Seconds",
     description: "Fast, reliable YouTube video downloader",
-    images: [`${SITE_URL}/twitter-image.png`],
+    images: [`${SITE_URL}/twitter-image.jpg`],
     creator: "@dev_concept",
   },
 };
