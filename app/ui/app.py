@@ -3,10 +3,10 @@ from typing import Optional
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
     QProgressBar, QFileDialog, QListWidget, QListWidgetItem, QMessageBox,
-    QHBoxLayout, QDialog, QSpacerItem, QSizePolicy, QFrame
+    QHBoxLayout, QDialog, QSpacerItem, QSizePolicy, QFrame, QMenu
 )
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QKeySequence
 
 import subprocess
 from core.engine import DownloadEngine
@@ -21,6 +21,7 @@ from core.download_session import DownloadSession
 from ui.settings_dialog import SettingsDialog
 from ui.splash_screen import show_splash, hide_splash
 from ui.theme import load_stylesheet, Colors
+from ui.notifications import show_notification
 
 
 # ---------------- Worker Thread ----------------
@@ -182,17 +183,20 @@ class YouTubeDownloader(QWidget):
         self.stop_btn = QPushButton("Stop")
         self.stop_btn.setObjectName("dangerButton")
         self.clear_queue_btn = QPushButton("Clear Queue")
+        self.open_folder_btn = QPushButton("Open Folder")
         
         self.add_btn.clicked.connect(self.add_to_queue)
         self.start_btn.clicked.connect(self.start_queue)
         self.stop_btn.clicked.connect(self.stop_downloads)
         self.clear_queue_btn.clicked.connect(self.clear_queue)
+        self.open_folder_btn.clicked.connect(self.open_download_folder)
         self.stop_btn.setEnabled(False)
         
         btn_layout.addWidget(self.add_btn)
         btn_layout.addWidget(self.start_btn)
         btn_layout.addWidget(self.stop_btn)
         btn_layout.addWidget(self.clear_queue_btn)
+        btn_layout.addWidget(self.open_folder_btn)
         btn_layout.addStretch()
         
         # Settings and logs buttons (right side)
@@ -225,6 +229,8 @@ class YouTubeDownloader(QWidget):
 
         # Download list
         self.list_widget = QListWidget()
+        self.list_widget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.show_queue_context_menu)
         layout.addWidget(self.list_widget)
 
         self.setLayout(layout)
@@ -468,6 +474,8 @@ class YouTubeDownloader(QWidget):
                 self.session.mark_item_done()
             self.set_item_status(row, ItemStatus.COMPLETED)
             log_info(f"Successfully downloaded: {queue_item.title}")
+            # Show notification
+            show_notification("Download Complete", f"✅ {queue_item.title}", sound=True)
         else:
             # Try to retry if we haven't exceeded max retries
             if queue_item.retry_count < queue_item.max_retries:
@@ -512,6 +520,8 @@ class YouTubeDownloader(QWidget):
             self.progress_bar.setValue(100)
             if self.session:
                 self.session.reset()
+            # Show completion notification
+            show_notification("All Downloads Complete", "✅ All items have been processed", sound=True)
 
     def stop_downloads(self):
         """Stop current download and pause the queue"""
@@ -528,6 +538,109 @@ class YouTubeDownloader(QWidget):
             if not self.session.current_worker.wait(5000):  # 5 second timeout
                 self.session.current_worker.terminate()
                 self.session.current_worker.wait()
+
+    def show_queue_context_menu(self, position):
+        """Show right-click context menu for queue items"""
+        item = self.list_widget.itemAt(position)
+        if not item:
+            return
+        
+        row = self.list_widget.row(item)
+        queue_item = self.queue.queue[row]
+        
+        menu = QMenu(self)
+        
+        # Copy URL action
+        copy_action = menu.addAction("Copy URL")
+        copy_action.triggered.connect(lambda: self.copy_queue_item_url(row))
+        
+        # Copy title action
+        copy_title_action = menu.addAction("Copy Title")
+        copy_title_action.triggered.connect(lambda: self.copy_queue_item_title(row))
+        
+        menu.addSeparator()
+        
+        # Remove item action
+        remove_action = menu.addAction("Remove from Queue")
+        remove_action.triggered.connect(lambda: self.remove_queue_item(row))
+        
+        # Show menu at cursor position
+        menu.exec(self.list_widget.mapToGlobal(position))
+
+    def copy_queue_item_url(self, row):
+        """Copy queue item URL to clipboard"""
+        from PyQt6.QtGui import QClipboard
+        clipboard = QApplication.clipboard()
+        queue_item = self.queue.queue[row]
+        clipboard.setText(queue_item.url)
+        log_info(f"Copied URL to clipboard: {queue_item.url}")
+
+    def copy_queue_item_title(self, row):
+        """Copy queue item title to clipboard"""
+        from PyQt6.QtGui import QClipboard
+        clipboard = QApplication.clipboard()
+        queue_item = self.queue.queue[row]
+        clipboard.setText(queue_item.title)
+        log_info(f"Copied title to clipboard: {queue_item.title}")
+
+    def remove_queue_item(self, row):
+        """Remove item from queue"""
+        self.queue.queue.pop(row)
+        self.list_widget.takeItem(row)
+        log_info(f"Removed item at index {row} from queue")
+
+    def open_download_folder(self):
+        """Open the download folder in file explorer"""
+        try:
+            folder = self.output_dir
+            if not folder:
+                QMessageBox.warning(self, "No folder", "Download folder not set")
+                return
+            
+            # Open folder with native file manager
+            if sys.platform == "darwin":  # macOS
+                subprocess.run(["open", folder])
+            elif sys.platform == "win32":  # Windows
+                subprocess.run(["explorer", folder])
+            else:  # Linux
+                subprocess.run(["xdg-open", folder])
+            
+            log_info(f"Opened download folder: {folder}")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Could not open folder: {str(e)}")
+            log_error(f"Error opening folder: {str(e)}", exc_info=True)
+
+    def keyPressEvent(self, event):
+        """Handle keyboard shortcuts"""
+        if event.key() == Qt.Key.Key_A and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            # Ctrl+A: Add to queue
+            self.url_input.setFocus()
+            self.add_to_queue()
+        elif event.key() == Qt.Key.Key_S and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            # Ctrl+S: Start downloads
+            self.start_queue()
+        elif event.key() == Qt.Key.Key_Q and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            # Ctrl+Q: Quit application
+            self.close()
+        else:
+            super().keyPressEvent(event)
+
+    def closeEvent(self, event):
+        """Handle window close and cleanup"""
+        # Stop any running download workers
+        if self.session and self.session.current_worker and self.session.current_worker.isRunning():
+            self.session.current_worker.stop()
+            self.session.current_worker.wait(5000)
+        
+        # Wait for metadata workers to finish
+        for worker in self.metadata_workers:
+            if worker.isRunning():
+                worker.wait(1000)
+        
+        # Save queue before closing
+        self.queue_persistence.save_queue(self.queue)
+        log_info("Application closing, queue saved")
+        event.accept()
 
 
 # ---------------- App Entry ----------------

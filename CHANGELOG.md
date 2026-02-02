@@ -338,14 +338,31 @@ app/
 
 ---
 
+## [1.1.0] - 2026-02-02
+
+### ✨ UX Enhancements
+
+#### Keyboard Shortcuts
+- [x] **Ctrl+A** - Add URL to queue
+- [x] **Ctrl+S** - Start downloads
+- [x] **Ctrl+Q** - Quit application
+
+#### Queue Context Menu
+- [x] **Copy URL** - Copy item URL to clipboard
+- [x] **Copy Title** - Copy item title to clipboard
+- [x] **Remove from Queue** - Delete item without downloading
+
+#### Notifications
+- [x] Per-download completion notifications (with sound)
+- [x] All-downloads-complete notification
+- [x] Cross-platform support (macOS, Windows, Linux)
+
+#### File Management
+- [x] **Open Folder button** - Reveal download folder in file explorer
+
+---
+
 ## Roadmap - Planned Features
-
-### v1.1 (High Priority)
-
-- [ ] Keyboard shortcuts (Ctrl+A, Ctrl+S, Ctrl+Q)
-- [ ] Right-click context menu on queue items
-- [ ] Download completion notifications
-- [ ] Open folder button to show downloaded files
 
 ### v1.2 (Medium Priority)
 
