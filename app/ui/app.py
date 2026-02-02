@@ -267,8 +267,8 @@ class YouTubeDownloader(QMainWindow):
         clear_action = edit_menu.addAction("Clear Queue")
         clear_action.triggered.connect(self.clear_queue)
         
-        # Help menu
-        help_menu = menubar.addMenu("Help")
+        # Help menu (use "?" to avoid macOS intercepting "Help" menu)
+        help_menu = menubar.addMenu("?")
         shortcuts_action = help_menu.addAction("Keyboard Shortcuts")
         shortcuts_action.triggered.connect(self.show_shortcuts_dialog)
         help_menu.addSeparator()
