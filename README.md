@@ -35,6 +35,11 @@ A fast, user-friendly desktop application to download YouTube videos and playlis
 - Cancel individual items in queue
 - Clear completed items
 
+## Screenshots
+
+![Main Window](docs/screenshots/main-window.png)
+![Settings](docs/screenshots/settings.png)
+
 ## Installation
 
 ### Option 1: Standalone Executable (Easiest)
@@ -154,11 +159,11 @@ https://www.youtube.com/@username
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action                  |
-| -------- | ----------------------- |
-| Ctrl+A   | Add to Queue            |
-| Ctrl+S   | Start Downloads         |
-| Ctrl+Q   | Quit application        |
+| Shortcut | Action           |
+| -------- | ---------------- |
+| Ctrl+A   | Add to Queue     |
+| Ctrl+S   | Start Downloads  |
+| Ctrl+Q   | Quit application |
 
 ## Troubleshooting
 
