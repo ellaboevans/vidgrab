@@ -4,6 +4,67 @@ All notable changes to VidGrab are documented in this file. The format is based 
 
 ---
 
+## [1.0.1] - 2026-02-08
+
+### 🐛 Bug Fixes
+
+#### Intel Mac Support
+
+- **Fixed app crash on Intel Macs** - pyffmpeg was causing hard import crashes on x86_64 architecture
+  - Now skips pyffmpeg on Intel Macs and uses system FFmpeg instead
+  - Graceful fallback to Homebrew ffmpeg (`/usr/local/bin/ffmpeg`)
+  - Added platform/architecture detection at startup
+
+#### Build & Distribution
+
+- **Added Intel Mac builds to GitHub Actions** - Previously only building for Apple Silicon (arm64)
+  - `macos-13` runner builds native Intel/x86_64 executable
+  - `macos-latest` runner builds native Apple Silicon/arm64 executable
+  - Both DMGs now included in releases: `VidGrab-intel.dmg` and `VidGrab-arm64.dmg`
+  - CI/CD passes correct `--target-arch` to PyInstaller
+
+#### Engine Improvements
+
+- **Lazy resolution of FFmpeg/Node.js** - Moved binary detection from module import to function calls
+  - Prevents hard crashes if dependency detection fails during startup
+  - Better error handling and logging at each resolution step
+  - Functions memoized to avoid repeated lookups
+
+#### Build Script Enhancement
+
+- **Architecture-aware local builds** on macOS
+  - Apple Silicon: Defaults to building x86_64 for Intel users
+  - Add `--universal` flag to build universal2 binary (both architectures)
+  - Clear output showing detected architecture and build target
+
+### Technical Changes
+
+- Refactored `engine.py`:
+  - `_resolve_ffmpeg()` function with lazy evaluation and architecture checks
+  - `_resolve_node()` function with improved error handling
+  - Platform detection using `platform.machine()` and `os.sys.platform`
+  - Skip pyffmpeg on Intel macOS (x86_64, i386) to avoid crashes
+- Updated `build.sh`:
+  - Architecture detection and conditional builds
+  - `--universal` flag support for universal2 binaries
+  - Better console output with emoji indicators
+
+- Updated `.github/workflows/build.yml`:
+  - Dual macOS build matrix (arm64 + x86_64)
+  - Proper artifact naming and release uploads
+  - `--target-arch` passed to PyInstaller
+
+### Tested
+
+- ✅ Intel Mac builds in CI/CD (macos-13 runner)
+- ✅ Apple Silicon builds in CI/CD (macos-latest runner)
+- ✅ pyffmpeg skipped on Intel, system ffmpeg used
+- ✅ Lazy binary resolution prevents import crashes
+- ✅ Both DMGs uploaded to GitHub releases
+- ✅ Local builds work with `./build.sh` and `./build.sh --universal`
+
+---
+
 ## [1.0.0] - 2026-02-01
 
 ### ✨ Initial Release - Production Ready
@@ -343,21 +404,25 @@ app/
 ### ✨ UX Enhancements
 
 #### Keyboard Shortcuts
+
 - [x] **Ctrl+A** - Add URL to queue
 - [x] **Ctrl+S** - Start downloads
 - [x] **Ctrl+Q** - Quit application
 
 #### Queue Context Menu
+
 - [x] **Copy URL** - Copy item URL to clipboard
 - [x] **Copy Title** - Copy item title to clipboard
 - [x] **Remove from Queue** - Delete item without downloading
 
 #### Notifications
+
 - [x] Per-download completion notifications (with sound)
 - [x] All-downloads-complete notification
 - [x] Cross-platform support (macOS, Windows, Linux)
 
 #### File Management
+
 - [x] **Open Folder button** - Reveal download folder in file explorer
 
 ---
