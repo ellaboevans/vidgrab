@@ -23,14 +23,24 @@ interface DownloadAsset {
 
 const DOWNLOADS: DownloadAsset[] = [
   {
-    name: "macOS",
+    name: "macOS (Apple Silicon)",
     icon: RiAppleFill,
-    description: "Universal binary for Intel & Apple Silicon",
-    specs: ["macOS 10.14+", "Intel or Apple Silicon", "~50 MB"],
+    description: "For Apple Silicon (M1, M2, M3, etc.)",
+    specs: ["macOS 10.14+", "Apple Silicon processor", "~100 MB"],
     downloadLink: "#",
     theme: "primary",
     status: "ready",
-    assetName: "VidGrab.dmg",
+    assetName: "VidGrab-arm64.dmg",
+  },
+  {
+    name: "macOS (Intel)",
+    icon: RiAppleFill,
+    description: "For Intel-based Macs",
+    specs: ["macOS 10.14+", "Intel processor", "~100 MB"],
+    downloadLink: "#",
+    theme: "primary",
+    status: "ready",
+    assetName: "VidGrab-intel.dmg",
   },
   {
     name: "Windows",
@@ -64,30 +74,40 @@ export function DownloadGrid() {
         if (!response.ok) throw new Error("Failed to fetch release");
         const release = await response.json();
 
-        // Find macOS asset (VidGrab.dmg)
-        const macOSAsset = release.assets.find(
-          (asset: { name: string }) => asset.name === "VidGrab.dmg",
+        // Find macOS assets
+        const armAsset = release.assets.find(
+          (asset: { name: string }) => asset.name === "VidGrab-arm64.dmg",
+        );
+        const intelAsset = release.assets.find(
+          (asset: { name: string }) => asset.name === "VidGrab-intel.dmg",
         );
 
-        if (macOSAsset) {
-          setDownloads((prev) =>
-            prev.map((dl) =>
-              dl.name === "macOS"
-                ? {
-                    ...dl,
-                    downloadLink: macOSAsset.browser_download_url,
-                    downloadCount: macOSAsset.download_count,
-                  }
-                : dl,
-            ),
-          );
-        }
+        setDownloads((prev) =>
+          prev.map((dl) => {
+            if (dl.name === "macOS (Apple Silicon)" && armAsset) {
+              return {
+                ...dl,
+                downloadLink: armAsset.browser_download_url,
+                downloadCount: armAsset.download_count,
+              };
+            }
+            if (dl.name === "macOS (Intel)" && intelAsset) {
+              return {
+                ...dl,
+                downloadLink: intelAsset.browser_download_url,
+                downloadCount: intelAsset.download_count,
+              };
+            }
+            return dl;
+          }),
+        );
       } catch (error) {
         console.error("Failed to fetch latest release:", error);
         // Fallback to releases page if API fails
         setDownloads((prev) =>
           prev.map((dl) =>
-            dl.name === "macOS"
+            dl.name === "macOS (Apple Silicon)" ||
+            dl.name === "macOS (Intel)"
               ? {
                   ...dl,
                   downloadLink:
