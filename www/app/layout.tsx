@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL as string;
 
@@ -131,6 +132,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${ibmPlexSans.variable} antialiased overflow-x-hidden`}>
+        <Analytics />
         {children}
       </body>
     </html>
