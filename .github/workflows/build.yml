@@ -21,7 +21,7 @@ jobs:
             artifact: VidGrab-arm64.dmg
             path: app/dist/VidGrab-arm64.dmg
             arch: arm64
-          - os: macos-13
+          - os: macos-14
             name: macOS-Intel
             artifact: VidGrab-intel.dmg
             path: app/dist/VidGrab-intel.dmg
