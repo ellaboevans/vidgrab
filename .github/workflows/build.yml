@@ -3,7 +3,7 @@ name: Build Executables
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -17,9 +17,15 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            name: macOS
-            artifact: VidGrab.dmg
-            path: app/dist/VidGrab.dmg
+            name: macOS-ARM64
+            artifact: VidGrab-arm64.dmg
+            path: app/dist/VidGrab-arm64.dmg
+            arch: arm64
+          - os: macos-13
+            name: macOS-Intel
+            artifact: VidGrab-intel.dmg
+            path: app/dist/VidGrab-intel.dmg
+            arch: x86_64
           - os: windows-latest
             name: Windows
             artifact: VidGrab.exe
@@ -35,7 +41,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5 # Updated to latest stable v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -56,7 +62,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Build executable (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos')
         working-directory: app
         run: |
           # Use --onedir (default) instead of --onefile for better .app bundle support
@@ -64,6 +70,7 @@ jobs:
             --noconfirm \
             --windowed \
             --name VidGrab \
+            --target-arch=${{ matrix.arch }} \
             --add-data "core:core" \
             --add-data "ui:ui" \
             --hidden-import=yt_dlp \
@@ -105,23 +112,25 @@ jobs:
             main.py
 
       - name: Sign app (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos')
         run: |
           # 1. Force executable permissions on the internal binary
           chmod +x app/dist/VidGrab.app/Contents/MacOS/VidGrab
-          
+
           # 2. Ad-hoc sign the .app bundle recursively
           codesign --force --deep --sign - app/dist/VidGrab.app
 
       - name: Create DMG (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos')
         run: |
           # Package the signed .app into a DMG
+          # Rename based on architecture for clarity
+          DMG_NAME="${{ matrix.artifact }}"
           hdiutil create \
             -volname "VidGrab" \
             -srcfolder app/dist/VidGrab.app \
             -ov -format UDZO \
-            app/dist/VidGrab.dmg
+            "app/dist/${DMG_NAME}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -146,7 +155,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            downloads/VidGrab.dmg
+            downloads/VidGrab-arm64.dmg
+            downloads/VidGrab-intel.dmg
             downloads/VidGrab.exe
             downloads/VidGrab
           draft: false
