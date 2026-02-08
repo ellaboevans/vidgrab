@@ -10,7 +10,7 @@ All notable changes to VidGrab are documented in this file. The format is based 
 
 #### Intel Mac Support
 
-- **Fixed app crash on Intel Macs** - pyffmpeg was causing hard import crashes on x86_64 architecture
+- **Fixed app crash on Intel Macs** - pyffmpeg was causing hard import crashes on x86_64 architectures
   - Now skips pyffmpeg on Intel Macs and uses system FFmpeg instead
   - Graceful fallback to Homebrew ffmpeg (`/usr/local/bin/ffmpeg`)
   - Added platform/architecture detection at startup
