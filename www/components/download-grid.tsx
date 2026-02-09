@@ -50,6 +50,7 @@ const DOWNLOADS: DownloadAsset[] = [
     downloadLink: "#",
     theme: "accent",
     status: "coming-soon",
+    assetName: "VidGrab.exe",
   },
   {
     name: "Linux",
@@ -59,6 +60,7 @@ const DOWNLOADS: DownloadAsset[] = [
     downloadLink: "#",
     theme: "secondary",
     status: "coming-soon",
+    assetName: "VidGrab",
   },
 ];
 
@@ -66,48 +68,31 @@ export function DownloadGrid() {
   const [downloads, setDownloads] = useState<DownloadAsset[]>(DOWNLOADS);
 
   useEffect(() => {
-    const fetchLatestRelease = async () => {
+    const fetchDownloadCounts = async () => {
       try {
-        const response = await fetch(
-          "https://api.github.com/repos/ellaboevans/vidgrab/releases/latest",
-        );
-        if (!response.ok) throw new Error("Failed to fetch release");
-        const release = await response.json();
-
-        // Find macOS assets
-        const armAsset = release.assets.find(
-          (asset: { name: string }) => asset.name === "VidGrab-arm64.dmg",
-        );
-        const intelAsset = release.assets.find(
-          (asset: { name: string }) => asset.name === "VidGrab-intel.dmg",
-        );
+        const response = await fetch("/api/download-counts");
+        const data = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch download counts");
+        const totals = data.totals || {};
+        const latestAssets = data.latestAssets || {};
 
         setDownloads((prev) =>
           prev.map((dl) => {
-            if (dl.name === "macOS (Apple Silicon)" && armAsset) {
-              return {
-                ...dl,
-                downloadLink: armAsset.browser_download_url,
-                downloadCount: armAsset.download_count,
-              };
-            }
-            if (dl.name === "macOS (Intel)" && intelAsset) {
-              return {
-                ...dl,
-                downloadLink: intelAsset.browser_download_url,
-                downloadCount: intelAsset.download_count,
-              };
-            }
-            return dl;
+            if (!dl.assetName) return dl;
+            const latest = latestAssets[dl.assetName];
+            return {
+              ...dl,
+              downloadLink: latest?.url || dl.downloadLink,
+              downloadCount: totals[dl.assetName],
+            };
           }),
         );
       } catch (error) {
-        console.error("Failed to fetch latest release:", error);
+        console.error("Failed to fetch download counts:", error);
         // Fallback to releases page if API fails
         setDownloads((prev) =>
           prev.map((dl) =>
-            dl.name === "macOS (Apple Silicon)" ||
-            dl.name === "macOS (Intel)"
+            dl.assetName
               ? {
                   ...dl,
                   downloadLink:
@@ -119,7 +104,7 @@ export function DownloadGrid() {
       }
     };
 
-    fetchLatestRelease();
+    fetchDownloadCounts();
   }, []);
 
   return (
@@ -236,13 +221,10 @@ export function DownloadGrid() {
                               : "#f7931e",
                       }}>
                       <RiDownloadCloud2Fill className="w-5 h-5" />
-                      {platform.downloadCount !== undefined &&
-                        platform.downloadCount > 0 && (
-                          <span>
-                            ({platform.downloadCount.toLocaleString()})
-                          </span>
-                        )}
                       Download
+                      {platform.downloadCount !== undefined && (
+                        <span>({platform.downloadCount.toLocaleString()})</span>
+                      )}
                     </a>
                   ) : (
                     <button
@@ -269,6 +251,9 @@ export function DownloadGrid() {
                               : "#f7931e",
                       }}>
                       Coming Soon
+                      {platform.downloadCount !== undefined && (
+                        <span>({platform.downloadCount.toLocaleString()})</span>
+                      )}
                     </button>
                   )}
                 </div>
@@ -298,4 +283,8 @@ export function DownloadGrid() {
       </div>
     </section>
   );
+}
+
+function fetchLatestRelease() {
+  throw new Error("Function not implemented.");
 }
