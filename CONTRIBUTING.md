@@ -37,7 +37,7 @@ Thank you for your interest in contributing to VidGrab! We welcome contributions
 
 4. **Run the app**
    ```bash
-   python3 -m app.main
+   python3 -m app/main
    ```
 
 ---
