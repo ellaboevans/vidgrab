@@ -4,9 +4,9 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
     QProgressBar, QFileDialog, QListWidget, QListWidgetItem, QMessageBox,
     QHBoxLayout, QDialog, QSpacerItem, QSizePolicy, QFrame, QMenu, QMainWindow,
-    QMenuBar
+    QMenuBar, QRadioButton, QButtonGroup
 )
-from PyQt6.QtCore import QThread, pyqtSignal, Qt
+from PyQt6.QtCore import QThread, pyqtSignal, Qt, QTimer
 from PyQt6.QtGui import QColor, QKeySequence
 
 import subprocess
@@ -124,7 +124,7 @@ class YouTubeDownloader(QMainWindow):
         self._create_menu_bar()
 
         # Create central widget
-        central_widget = QWidget()
+        self.central_widget = QWidget()
         layout = QVBoxLayout()
         layout.setSpacing(12)
         layout.setContentsMargins(16, 16, 16, 16)
@@ -150,6 +150,32 @@ class YouTubeDownloader(QMainWindow):
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("Paste video or playlist URL")
         layout.addWidget(self.url_input)
+
+        # Download type selector
+        type_label = QLabel("Download Type")
+        type_label.setObjectName("sectionHeader")
+        layout.addWidget(type_label)
+
+        type_row = QHBoxLayout()
+        self.type_group = QButtonGroup(self)
+        self.type_auto = QRadioButton("Auto (Recommended)")
+        self.type_video = QRadioButton("Single Video")
+        self.type_playlist = QRadioButton("Playlist")
+        self.type_channel = QRadioButton("Channel / Handle")
+
+        self.type_auto.setChecked(True)
+
+        self.type_group.addButton(self.type_auto)
+        self.type_group.addButton(self.type_video)
+        self.type_group.addButton(self.type_playlist)
+        self.type_group.addButton(self.type_channel)
+
+        type_row.addWidget(self.type_auto)
+        type_row.addWidget(self.type_video)
+        type_row.addWidget(self.type_playlist)
+        type_row.addWidget(self.type_channel)
+        type_row.addStretch()
+        layout.addLayout(type_row)
 
         # Folder chooser section with shaded background
         folder_label_header = QLabel("Download Folder")
@@ -223,10 +249,20 @@ class YouTubeDownloader(QMainWindow):
         self.progress_bar.setFormat("%p%")  # Show percentage
         layout.addWidget(self.progress_bar)
 
+        # Playlist/queue item counter (e.g., Item 1/20)
+        self.playlist_counter_label = QLabel("")
+        self.playlist_counter_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
+        layout.addWidget(self.playlist_counter_label)
+
         # Status
         self.status_label = QLabel("Idle")
         self.status_label.setObjectName("statusLabel")
         layout.addWidget(self.status_label)
+
+        # Queue counter
+        self.queue_counter = QLabel("")
+        self.queue_counter.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
+        layout.addWidget(self.queue_counter)
 
         # Download list header
         queue_header = QLabel("Download Queue")
@@ -239,8 +275,11 @@ class YouTubeDownloader(QMainWindow):
         self.list_widget.customContextMenuRequested.connect(self.show_queue_context_menu)
         layout.addWidget(self.list_widget)
 
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+        self.central_widget.setLayout(layout)
+        self.setCentralWidget(self.central_widget)
+
+        # In-app toast (top-right)
+        self._init_toast()
         
         # Load default folder from settings
         self.output_dir = self.settings.download_folder
@@ -275,9 +314,46 @@ class YouTubeDownloader(QMainWindow):
         about_action = help_menu.addAction("About VidGrab")
         about_action.triggered.connect(self.show_about_dialog)
 
+    def _init_toast(self):
+        """Create a lightweight in-app toast for notifications."""
+        self.toast = QFrame(self.central_widget)
+        self.toast.setObjectName("toast")
+        self.toast.setStyleSheet(
+            "QFrame#toast { background: #0f1419; border: 1px solid #1f2a33; "
+            "border-radius: 8px; }"
+        )
+        self.toast_label = QLabel("", self.toast)
+        self.toast_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 12px;")
+        toast_layout = QHBoxLayout()
+        toast_layout.setContentsMargins(10, 8, 10, 8)
+        toast_layout.addWidget(self.toast_label)
+        self.toast.setLayout(toast_layout)
+        self.toast.hide()
+
+    def _show_toast(self, message: str, duration_ms: int = 5000):
+        """Show a temporary in-app toast in the top-right corner."""
+        self.toast_label.setText(message)
+        self.toast.adjustSize()
+        self._position_toast()
+        self.toast.show()
+        self.toast.raise_()
+        QTimer.singleShot(duration_ms, self.toast.hide)
+
+    def _position_toast(self):
+        if not self.toast or not self.central_widget:
+            return
+        margin = 12
+        cw = self.central_widget.width()
+        self.toast.move(max(margin, cw - self.toast.width() - margin), margin)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._position_toast()
+
     def _populate_queue_ui(self):
         """Populate the queue list widget with loaded queue items"""
         for item in self.queue.queue:
+            type_label = self._format_type_label(item.download_type)
             if item.status == ItemStatus.COMPLETED:
                 color = QColor(Colors.STATUS_COMPLETED)
                 icon = "✅"
@@ -291,9 +367,11 @@ class YouTubeDownloader(QMainWindow):
                 color = QColor(Colors.STATUS_WAITING)
                 icon = "⏳"
             
-            list_item = QListWidgetItem(f"{icon} {item.status.value}: {item.title}")
+            type_suffix = f" ({type_label})" if type_label else ""
+            list_item = QListWidgetItem(f"{icon} {item.status.value}{type_suffix}: {item.title}")
             list_item.setForeground(color)
             self.list_widget.addItem(list_item)
+        self._refresh_queue_counter()
 
     def closeEvent(self, event):
         """Clean up threads and save state before closing"""
@@ -339,6 +417,7 @@ class YouTubeDownloader(QMainWindow):
             self.queue_persistence.clear_saved_queue()
             self.status_label.setText("Queue cleared")
             log_info("Queue cleared by user")
+            self._refresh_queue_counter()
 
     # ---------------- Settings & Logs ----------------
     def open_settings(self):
@@ -390,6 +469,13 @@ class YouTubeDownloader(QMainWindow):
             log_error(f"Invalid URL attempted: {url}")
             return
 
+        download_type = self._get_selected_download_type()
+        matches_type, type_error = URLValidator.matches_type(url, download_type)
+        if not matches_type:
+            QMessageBox.warning(self, "URL Type Mismatch", type_error)
+            log_warning(f"URL type mismatch ({download_type}): {url}")
+            return
+
         # Check for duplicates
         is_duplicate, existing_title = URLValidator.is_duplicate(url, self.queue.queue)
         if is_duplicate:
@@ -405,8 +491,10 @@ class YouTubeDownloader(QMainWindow):
 
         # Temporarily use URL as title until metadata is fetched
         item_index = self.list_widget.count()
-        self.queue.add(url, url)
-        list_item = QListWidgetItem("⏳ Waiting: Fetching title...")
+        self.queue.add(url, url, download_type=download_type)
+        type_label = self._format_type_label(download_type)
+        type_suffix = f" ({type_label})" if type_label else ""
+        list_item = QListWidgetItem(f"⏳ Waiting{type_suffix}: Fetching title...")
         list_item.setForeground(QColor(Colors.STATUS_WAITING))
         self.list_widget.addItem(list_item)
 
@@ -418,14 +506,46 @@ class YouTubeDownloader(QMainWindow):
         self.metadata_workers.append(worker)
         worker.start()
         self.url_input.clear()
+        self._refresh_queue_counter()
 
     def on_title_ready(self, row, title, worker):
         self.queue.queue[row].title = title
-        self.list_widget.item(row).setText(f"⏳ Waiting: {title}")
+        type_label = self._format_type_label(self.queue.queue[row].download_type)
+        type_suffix = f" ({type_label})" if type_label else ""
+        self.list_widget.item(row).setText(f"⏳ Waiting{type_suffix}: {title}")
         # Wait for thread to finish and remove it
         worker.wait()
         if worker in self.metadata_workers:
             self.metadata_workers.remove(worker)
+        self._refresh_queue_counter()
+
+    def _format_type_label(self, download_type: str) -> str:
+        mapping = {
+            "auto": "Auto",
+            "video": "Video",
+            "playlist": "Playlist",
+            "channel": "Channel",
+        }
+        return mapping.get((download_type or "auto").lower(), "Auto")
+
+    def _get_selected_download_type(self) -> str:
+        if self.type_video.isChecked():
+            return "video"
+        if self.type_playlist.isChecked():
+            return "playlist"
+        if self.type_channel.isChecked():
+            return "channel"
+        return "auto"
+
+    def _refresh_queue_counter(self):
+        total = len(self.queue.queue)
+        remaining = len([i for i in self.queue.queue if i.status in (ItemStatus.WAITING, ItemStatus.DOWNLOADING)])
+        completed = len([i for i in self.queue.queue if i.status == ItemStatus.COMPLETED])
+        failed = len([i for i in self.queue.queue if i.status == ItemStatus.FAILED])
+        cancelled = len([i for i in self.queue.queue if i.status == ItemStatus.CANCELLED])
+        self.queue_counter.setText(
+            f"Queue: {total} • Remaining: {remaining} • Completed: {completed} • Failed: {failed} • Cancelled: {cancelled}"
+        )
 
     # ---------------- Queue Processing ----------------
     def start_queue(self):
@@ -441,6 +561,7 @@ class YouTubeDownloader(QMainWindow):
         self.session.is_running = True
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
+        self._refresh_queue_counter()
         self.start_next_download()
 
     def start_next_download(self):
@@ -451,6 +572,8 @@ class YouTubeDownloader(QMainWindow):
             self.start_btn.setEnabled(True)
             if self.session:
                 self.session.reset()
+            self.playlist_counter_label.setText("")
+            self._refresh_queue_counter()
             return
 
         index = self.queue.current_index + 1
@@ -495,7 +618,15 @@ class YouTubeDownloader(QMainWindow):
     def update_item_progress(self, row, percent, detail=""):
         item = self.list_widget.item(row)
         title = self.queue.queue[row].title
-        detail_str = f" — {detail}" if detail else ""
+        detail_text = detail or ""
+        playlist_text = ""
+        if "• Item " in detail_text:
+            parts = detail_text.split("• Item ", 1)
+            detail_text = parts[0].rstrip()
+            playlist_text = f"Item {parts[1].strip()}"
+
+        self.playlist_counter_label.setText(playlist_text)
+        detail_str = f" — {detail_text}" if detail_text else ""
         item.setText(f"▶️ {title} ({percent}%){detail_str}")
         # Update main progress bar with current download percentage
         self.progress_bar.setValue(percent)
@@ -511,6 +642,8 @@ class YouTubeDownloader(QMainWindow):
             log_info(f"Successfully downloaded: {queue_item.title}")
             # Show notification
             show_notification("Download Complete", f"✅ {queue_item.title}", sound=True)
+            self._show_toast(f"Download complete: {queue_item.title}")
+            self._refresh_queue_counter()
         else:
             # Try to retry if we haven't exceeded max retries
             if queue_item.retry_count < queue_item.max_retries:
@@ -534,6 +667,7 @@ class YouTubeDownloader(QMainWindow):
                     self.session.mark_item_done()
                 self.set_item_status(row, ItemStatus.FAILED, error_msg)
                 log_error(f"Download failed after {queue_item.max_retries} retries: {queue_item.title}")
+                self._refresh_queue_counter()
                 
                 # Show final error to user
                 QMessageBox.critical(
@@ -557,6 +691,11 @@ class YouTubeDownloader(QMainWindow):
                 self.session.reset()
             # Show completion notification
             show_notification("All Downloads Complete", "✅ All items have been processed", sound=True)
+            # Auto-open download folder on completion
+            self.open_download_folder()
+            self._show_toast("All downloads complete")
+            self.playlist_counter_label.setText("")
+            self._refresh_queue_counter()
 
     def stop_downloads(self):
         """Stop current download and pause the queue"""
@@ -565,6 +704,7 @@ class YouTubeDownloader(QMainWindow):
         self.status_label.setText("Downloads stopped")
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
+        self.playlist_counter_label.setText("")
         
         # Stop the current worker gracefully
         if self.session and self.session.current_worker and self.session.current_worker.isRunning():
@@ -623,6 +763,7 @@ class YouTubeDownloader(QMainWindow):
         self.queue.queue.pop(row)
         self.list_widget.takeItem(row)
         log_info(f"Removed item at index {row} from queue")
+        self._refresh_queue_counter()
 
     def open_download_folder(self):
         """Open the download folder in file explorer"""

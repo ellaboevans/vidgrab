@@ -5,8 +5,8 @@ class QueueManager:
         self.queue: list[QueueItem] = []
         self.current_index = -1
 
-    def add(self, url: str, title: str):
-        item = QueueItem(url=url, title=title)
+    def add(self, url: str, title: str, download_type: str = "auto"):
+        item = QueueItem(url=url, title=title, download_type=download_type)
         self.queue.append(item)
         return item
 

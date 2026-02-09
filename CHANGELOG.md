@@ -4,6 +4,38 @@ All notable changes to VidGrab are documented in this file. The format is based 
 
 ---
 
+## [1.1.0] - 2026-02-09
+
+### ✨ Added
+
+#### Download Type Selection
+
+- **Download type controls** - Users can explicitly choose Auto, Single Video, Playlist, or Channel/Handle
+  - Prevents accidental bulk downloads from channel or playlist links
+  - Type-specific validation with clear error feedback
+  - Download type shown in queue items for clarity
+
+#### Progress & Counters
+
+- **Playlist/channel item counter** - Shows `Item X/Y` during downloads (including channels)
+  - Works for playlists and channel feeds via yt-dlp metadata
+  - Displayed below the progress bar for visibility
+
+- **Queue summary counter** - Live totals for Remaining, Completed, Failed, and Cancelled items
+
+#### UX Enhancements
+
+- **In-app toast notifications** - Lightweight top-right toasts for completion events
+  - Auto-dismiss after 5 seconds
+
+- **Auto-open download folder** when all items finish downloading
+
+### 🛠️ Technical Changes
+
+- Queue items now persist `download_type` in `queue.json`
+- URL validation now checks for selected download type
+- Progress hook now reads playlist counts from both `progress` and `info_dict`
+
 ## [1.0.1] - 2026-02-08
 
 ### 🐛 Bug Fixes

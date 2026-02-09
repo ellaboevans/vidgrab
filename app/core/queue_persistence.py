@@ -25,6 +25,7 @@ class QueuePersistence:
                     "error_message": item.error_message,
                     "retry_count": item.retry_count,
                     "max_retries": item.max_retries,
+                    "download_type": item.download_type,
                 }
                 for item in queue_manager.queue
                 if item.status != ItemStatus.COMPLETED  # Don't persist completed items
@@ -66,6 +67,7 @@ class QueuePersistence:
                     error_message=item_data.get("error_message", ""),
                     retry_count=item_data.get("retry_count", 0),
                     max_retries=item_data.get("max_retries", 3),
+                    download_type=item_data.get("download_type", "auto"),
                 )
                 queue_manager.queue.append(item)
             

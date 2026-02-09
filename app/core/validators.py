@@ -13,6 +13,21 @@ class URLValidator:
         r'(?:https?:)?//(?:www\.)?youtube\.com/channel/[\w-]+',  # Channel
         r'(?:https?:)?//(?:www\.)?youtube\.com/@[\w-]+',  # Handle
     ]
+
+    TYPE_PATTERNS = {
+        "video": [
+            r'(?:https?:)?//(?:www\.)?youtube\.com/watch\?v=[\w-]+',
+            r'(?:https?:)?//youtu\.be/[\w-]+',
+        ],
+        "playlist": [
+            r'(?:https?:)?//(?:www\.)?youtube\.com/playlist\?list=[\w-]+',
+            r'(?:https?:)?//(?:www\.)?youtube\.com/watch\?v=[\w-]+&list=[\w-]+',
+        ],
+        "channel": [
+            r'(?:https?:)?//(?:www\.)?youtube\.com/channel/[\w-]+',
+            r'(?:https?:)?//(?:www\.)?youtube\.com/@[\w-]+',
+        ],
+    }
     
     @staticmethod
     def is_valid_youtube_url(url: str) -> tuple[bool, str]:
@@ -51,3 +66,27 @@ class URLValidator:
             if item.url.strip().lower() == url:
                 return True, item.title
         return False, ""
+
+    @staticmethod
+    def matches_type(url: str, download_type: str) -> tuple[bool, str]:
+        """
+        Validate if URL matches the selected download type.
+        Returns: (is_match, error_message)
+        """
+        normalized_type = (download_type or "auto").lower()
+        if normalized_type == "auto":
+            return True, ""
+
+        patterns = URLValidator.TYPE_PATTERNS.get(normalized_type, [])
+        for pattern in patterns:
+            if re.search(pattern, url, re.IGNORECASE):
+                return True, ""
+
+        if normalized_type == "video" and "list=" in url.lower():
+            return False, "This looks like a playlist link. Choose Playlist or Auto."
+        if normalized_type == "playlist":
+            return False, "Please paste a playlist link (looks like ...playlist?list=...)."
+        if normalized_type == "channel":
+            return False, "Please paste a channel link (channel/...) or handle link (@...)."
+
+        return False, "URL doesn't match the selected download type."

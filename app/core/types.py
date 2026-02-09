@@ -17,3 +17,4 @@ class QueueItem:
     error_message: str = ""
     retry_count: int = 0
     max_retries: int = 3
+    download_type: str = "auto"

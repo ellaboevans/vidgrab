@@ -30,6 +30,18 @@ def progress_hook_factory(on_progress, on_done):
     def hook(d):
         nonlocal last_percent
         
+        info = d.get("info_dict") or {}
+        playlist_index = d.get("playlist_index") or info.get("playlist_index")
+        playlist_count = (
+            d.get("playlist_count")
+            or d.get("n_entries")
+            or info.get("playlist_count")
+            or info.get("n_entries")
+        )
+        playlist_suffix = ""
+        if playlist_index and playlist_count:
+            playlist_suffix = f" • Item {playlist_index}/{playlist_count}"
+
         if d["status"] == "downloading":
             total = d.get("total_bytes") or d.get("total_bytes_estimate")
             downloaded = d.get("downloaded_bytes", 0)
@@ -44,19 +56,19 @@ def progress_hook_factory(on_progress, on_done):
                     size_str = f"{_format_size(downloaded)} of {_format_size(total)}"
                     speed_str = _format_speed(speed)
                     eta_str = _format_eta(eta)
-                    detail = f"{size_str} at {speed_str} ETA {eta_str}"
+                    detail = f"{size_str} at {speed_str} ETA {eta_str}{playlist_suffix}"
                     on_progress(percent, detail)
                     last_percent = percent
             else:
                 # If we don't have total yet but are downloading, emit 0% once
                 if last_percent == -1:
-                    on_progress(0, "Starting download...")
+                    on_progress(0, f"Starting download...{playlist_suffix}")
                     last_percent = 0
 
         elif d["status"] == "finished":
             # Ensure we emit 100% when finished
             if last_percent != 100:
-                on_progress(100, "Complete")
+                on_progress(100, f"Complete{playlist_suffix}")
             on_done(d.get("filename"))
 
     return hook
